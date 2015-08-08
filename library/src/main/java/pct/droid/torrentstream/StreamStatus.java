@@ -18,12 +18,12 @@
 package pct.droid.torrentstream;
 
 public class StreamStatus {
-    public float progress;
-    public int bufferProgress;
-    public int seeds;
-    public float downloadSpeed;
+    public final float progress;
+    public final int bufferProgress;
+    public final int seeds;
+    public final float downloadSpeed;
 
-    StreamStatus(float progess, int bufferProgress, int seeds, int downloadSpeed) {
+    protected StreamStatus(float progess, int bufferProgress, int seeds, int downloadSpeed) {
         this.progress = progess;
         this.bufferProgress = bufferProgress;
         this.seeds = seeds;
