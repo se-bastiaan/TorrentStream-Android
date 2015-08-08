@@ -15,7 +15,7 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pct.droid.torrentstream;
+package eu.sv244.torrentstream;
 
 import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.FileStorage;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import pct.droid.torrentstream.listeners.TorrentListener;
+import eu.sv244.torrentstream.listeners.TorrentListener;
 
 public class Torrent implements AlertListener {
 
@@ -69,7 +69,7 @@ public class Torrent implements AlertListener {
      * After setting this priority, the first and last index of the pieces that make up this file are determined.
      * And last: amount of pieces that are needed for playback are calculated (needed for playback means: make up 10 megabyte of the file)
      *
-     * @param torrentHandle {@link TorrentHandle}
+     * @param torrentHandle jlibtorrent TorrentHandle
      */
     public Torrent(TorrentHandle torrentHandle, TorrentListener listener, Long prepareSize) {
         mTorrentHandle = torrentHandle;

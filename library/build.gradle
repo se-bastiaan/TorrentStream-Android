@@ -1,4 +1,24 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+group 'eu.sv244'
+version '1.0'
 
 android {
     compileSdkVersion 22
@@ -22,4 +42,85 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.frostwire:jlibtorrent:1.1.0.3'
     compile 'com.frostwire:jlibtorrent-android:1.1.0.3'
+}
+
+def siteUrl = 'https://github.com/sv244/TorrentStream-Android'
+def gitUrl = 'https://github.com/sv244/TorrentStream-Android.git'
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def bintrayUser = properties.getProperty('bintray.user')
+def bintrayKey = properties.getProperty('bintray.key')
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+
+    configurations = ['archives'] //When uploading configuration files
+    pkg {
+        repo = 'maven'
+        name = 'TorrentStream-Android'
+        desc = 'Torrent streamer for Android'
+        websiteUrl = siteUrl
+        issueTrackerUrl = 'https://github.com/sv244/TorrentStream-Android/issues'
+        vcsUrl = gitUrl
+        licenses = ['GPL-3.0']
+        labels = ['aar', 'android', 'torrent']
+        publicDownloadNumbers = false
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'Torrent streamer for Android'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'GNU General Public License, Version 3.0'
+                        url 'http://www.gnu.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'sv244'
+                        name 'sv244'
+                        email 'sv244@its.pt'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+task findConventions << {
+    println project.getConvention()
 }

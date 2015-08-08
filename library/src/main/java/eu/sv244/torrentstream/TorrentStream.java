@@ -15,7 +15,7 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pct.droid.torrentstream;
+package eu.sv244.torrentstream;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -42,12 +42,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import pct.droid.torrentstream.exceptions.DirectoryCreationException;
-import pct.droid.torrentstream.exceptions.NotInitializedException;
-import pct.droid.torrentstream.exceptions.TorrentInfoException;
-import pct.droid.torrentstream.listeners.TorrentListener;
-import pct.droid.torrentstream.utils.FileUtils;
-import pct.droid.torrentstream.utils.ThreadUtils;
+import eu.sv244.torrentstream.exceptions.DirectoryCreationException;
+import eu.sv244.torrentstream.exceptions.NotInitializedException;
+import eu.sv244.torrentstream.exceptions.TorrentInfoException;
+import eu.sv244.torrentstream.listeners.TorrentListener;
+import eu.sv244.torrentstream.utils.FileUtils;
+import eu.sv244.torrentstream.utils.ThreadUtils;
 
 public class TorrentStream {
 

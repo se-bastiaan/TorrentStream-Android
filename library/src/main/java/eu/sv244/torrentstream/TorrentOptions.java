@@ -17,7 +17,7 @@
  *
  */
 
-package pct.droid.torrentstream;
+package eu.sv244.torrentstream;
 
 import java.io.File;
 

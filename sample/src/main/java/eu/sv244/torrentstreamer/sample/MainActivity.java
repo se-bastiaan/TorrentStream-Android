@@ -17,7 +17,7 @@
  *
  */
 
-package pct.droid.torrentstreamer.sample;
+package eu.sv244.torrentstreamer.sample;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -29,11 +29,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import pct.droid.torrentstream.StreamStatus;
-import pct.droid.torrentstream.Torrent;
-import pct.droid.torrentstream.TorrentOptions;
-import pct.droid.torrentstream.TorrentStream;
-import pct.droid.torrentstream.listeners.TorrentListener;
+import eu.sv244.torrentstream.StreamStatus;
+import eu.sv244.torrentstream.Torrent;
+import eu.sv244.torrentstream.TorrentOptions;
+import eu.sv244.torrentstream.TorrentStream;
+import eu.sv244.torrentstream.listeners.TorrentListener;
 
 public class MainActivity extends AppCompatActivity implements TorrentListener {
 

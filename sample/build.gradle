@@ -24,7 +24,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "pct.droid.torrentstreamer.sample"
+        applicationId "eu.sv244.torrentstreamer.sample"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1

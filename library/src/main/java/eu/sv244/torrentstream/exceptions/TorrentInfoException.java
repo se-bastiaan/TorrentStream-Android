@@ -17,7 +17,7 @@
  *
  */
 
-package pct.droid.torrentstream.exceptions;
+package eu.sv244.torrentstream.exceptions;
 
 public class TorrentInfoException extends Exception {
 

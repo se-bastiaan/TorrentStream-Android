@@ -17,27 +17,12 @@
  *
  */
 
-package pct.droid.torrentstream.utils;
+package eu.sv244.torrentstream.exceptions;
 
-import java.io.File;
+public class DirectoryCreationException extends Exception {
 
-public class FileUtils {
-
-    /**
-     * Delete every item below the File location
-     *
-     * @param file Location
-     */
-    public static boolean recursiveDelete(File file) {
-        if (file.isDirectory()) {
-            String[] children = file.list();
-            if (children == null) return false;
-            for (String child : children) {
-                recursiveDelete(new File(file, child));
-            }
-        }
-
-        return file.delete();
+    public DirectoryCreationException() {
+        super("Could not create save directory");
     }
 
 }
