@@ -19,12 +19,15 @@
 
 package pct.droid.torrentstreamer.sample;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import pct.droid.torrentstream.StreamStatus;
 import pct.droid.torrentstream.Torrent;
@@ -35,6 +38,7 @@ import pct.droid.torrentstream.listeners.TorrentListener;
 public class MainActivity extends AppCompatActivity implements TorrentListener {
 
     private Button mButton;
+    private ProgressBar mProgressBar;
     private TorrentStream mTorrentStream;
 
     @Override
@@ -51,13 +55,23 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
 
         mButton = (Button) findViewById(R.id.button);
         mButton.setOnClickListener(mOnClickListener);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress);
+
+        mProgressBar.setMax(100);
     }
 
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //mTorrentStream.startStream("https://yts.to/torrent/download/FA1EBDA61C3EAECAF3F05B1E4FEC4CB79C703B55.torrent");
-            mTorrentStream.startStream("magnet:?xt=urn:btih:FA1EBDA61C3EAECAF3F05B1E4FEC4CB79C703B55&dn=Pitch+Perfect+2+%282015%29+%5B720p%5D&tr=http%3A%2F%2Ftracker.yify-torrents.com%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.org%3A80&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337");
+            mProgressBar.setProgress(0);
+            if(mTorrentStream.isStreaming()) {
+                mTorrentStream.stopStream();
+                mButton.setText("Start stream");
+                return;
+            }
+            //mTorrentStream.startStream("https://yts.to/torrent/download/D60795899F8488E7E489BA642DEFBCE1B23C9DA0.torrent");
+            mTorrentStream.startStream("magnet:?xt=urn:btih:D60795899F8488E7E489BA642DEFBCE1B23C9DA0&dn=Kingsman%3A+The+Secret+Service+%282014%29+%5B720p%5D&tr=http%3A%2F%2Ftracker.yify-torrents.com%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.org%3A80&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337");
+            mButton.setText("Stop stream");
         }
     };
 
@@ -79,11 +93,24 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
 
     @Override
     public void onStreamReady(Torrent torrent) {
-        Log.d("Torrent", "onStreamReady: " + torrent.getSaveLocation());
+        mProgressBar.setProgress(100);
+        Log.d("Torrent", "onStreamReady: " + torrent.getVideoFile());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(torrent.getVideoFile().toString()));
+        intent.setDataAndType(Uri.parse(torrent.getVideoFile().toString()), "video/mp4");
+        startActivity(intent);
     }
 
     @Override
     public void onStreamProgress(Torrent torrent, StreamStatus status) {
-        Log.d("Torrent", "onStreamProgress: " + status.bufferProgress);
+        if(status.bufferProgress <= 100 && mProgressBar.getProgress() < 100 && mProgressBar.getProgress() != status.bufferProgress) {
+            Log.d("Torrent", "Progress: " + status.bufferProgress);
+            mProgressBar.setProgress(status.bufferProgress);
+        }
+    }
+
+    @Override
+    public void onStreamStopped() {
+        Log.d("Torrent", "onStreamStopped");
     }
 }
