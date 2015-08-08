@@ -57,7 +57,7 @@ public class TorrentStream {
     private Session mTorrentSession;
     private DHT mDHT;
     private Boolean mInitialised = false, mIsStreaming = false, mIsCancelled = false;
-    private String mSaveLocation;
+    private TorrentOptions mTorrentOptions;
 
     private Torrent mCurrentTorrent;
     private String mCurrentTorrentUrl;
@@ -67,14 +67,13 @@ public class TorrentStream {
     private HandlerThread mLibTorrentThread, mStreamingThread;
     private Handler mLibTorrentHandler, mStreamingHandler;
 
-    private TorrentStream(String saveLocation) {
-        mSaveLocation = saveLocation;
-
+    private TorrentStream(TorrentOptions options) {
+        mTorrentOptions = options;
         initialise();
     }
 
-    public static TorrentStream init(String saveLocation) {
-        INSTANCE = new TorrentStream(saveLocation);
+    public static TorrentStream init(TorrentOptions options) {
+        INSTANCE = new TorrentStream(options);
         return INSTANCE;
     }
 
@@ -101,7 +100,6 @@ public class TorrentStream {
             mLibTorrentHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    // Start libtorrent session and init DHT
                     mTorrentSession = new Session();
 
                     SettingsPack settingsPack = new SettingsPack();
@@ -118,6 +116,9 @@ public class TorrentStream {
         }
     }
 
+    /**
+     * Resume TorrentSession
+     */
     public void resumeSession() {
         if (mLibTorrentThread != null && mTorrentSession != null) {
             mLibTorrentHandler.removeCallbacksAndMessages(null);
@@ -144,6 +145,9 @@ public class TorrentStream {
         }
     }
 
+    /**
+     * Pause TorrentSession
+     */
     public void pauseSession() {
         if(!mIsStreaming)
             mLibTorrentHandler.post(new Runnable() {
@@ -154,13 +158,14 @@ public class TorrentStream {
             });
     }
 
+    /**
+     * Get torrent metadata, either by downloading the .torrent or fetching the magnet
+     * @param torrentUrl {@link String} URL to .torrent or magnet link
+     * @return {@link TorrentInfo}
+     */
     private TorrentInfo getTorrentInfo(String torrentUrl) {
         if (torrentUrl.startsWith("magnet")) {
             Downloader d = new Downloader(mTorrentSession);
-
-            if (!mDHT.isRunning()) {
-                mDHT.start();
-            }
 
             if (mDHT.totalNodes() < 1) {
                 mDHT.waitNodes(30);
@@ -217,6 +222,10 @@ public class TorrentStream {
         return null;
     }
 
+    /**
+     * Start stream download for specified torrent
+     * @param torrentUrl {@link String} .torrent or magnet link
+     */
     public void startStream(final String torrentUrl) {
         if(!mInitialised)
             initialise();
@@ -235,7 +244,7 @@ public class TorrentStream {
                 mIsStreaming = true;
                 mCurrentTorrentUrl = torrentUrl;
 
-                File saveDirectory = new File(mSaveLocation);
+                File saveDirectory = new File(mTorrentOptions.mSaveLocation);
                 if(!saveDirectory.isDirectory()) {
                     if (!saveDirectory.mkdirs()) {
                         for (final TorrentListener listener : mListener) {
@@ -280,11 +289,10 @@ public class TorrentStream {
         });
     }
 
+    /**
+     * Stop current torrent stream
+     */
     public void stopStream() {
-        stopStream(true);
-    }
-
-    public void stopStream(Boolean removeDownloadedFiles) {
         //remove all callbacks from handler
         if(mLibTorrentHandler != null)
             mLibTorrentHandler.removeCallbacksAndMessages(null);
@@ -301,7 +309,7 @@ public class TorrentStream {
             mTorrentSession.removeTorrent(mCurrentTorrent.getTorrentHandle());
             mCurrentTorrent = null;
 
-            if (removeDownloadedFiles) {
+            if (mTorrentOptions.mRemoveFiles) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -323,11 +331,18 @@ public class TorrentStream {
             mStreamingThread.interrupt();
     }
 
-    public Boolean applySettings(SettingsPack settingsPack) {
-        if(mTorrentSession == null)
-            return false;
+    public TorrentOptions getOptions() {
+        return mTorrentOptions;
+    }
+
+    public void setOptions(TorrentOptions options) {
+        mTorrentOptions = options;
+
+        SettingsPack settingsPack = new SettingsPack();
+        settingsPack.setConnectionsLimit(mTorrentOptions.mMaxConnections);
+        settingsPack.setDownloadRateLimit(mTorrentOptions.mMaxDownloadSpeed);
+        settingsPack.setUploadRateLimit(mTorrentOptions.mMaxUploadSpeed);
         mTorrentSession.applySettings(settingsPack);
-        return true;
     }
 
     public boolean isStreaming() {

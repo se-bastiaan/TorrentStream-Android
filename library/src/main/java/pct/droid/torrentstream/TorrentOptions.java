@@ -23,8 +23,9 @@ import java.io.File;
 
 public class TorrentOptions {
 
-    protected String mSaveLocation;
-    protected Boolean mUseWakeLock;
+    protected String mSaveLocation = "/";
+    protected Integer mMaxDownloadSpeed = 0, mMaxUploadSpeed = 0, mMaxConnections = 200;
+    protected Boolean mRemoveFiles = false;
 
     public void setSaveLocation(String saveLocation) {
         mSaveLocation = saveLocation;
@@ -34,8 +35,21 @@ public class TorrentOptions {
         mSaveLocation = saveLocation.getAbsolutePath();
     }
 
-    public void setUseWakeLock(Boolean useWakeLock) {
-        mUseWakeLock = useWakeLock;
+    public void setMaxUploadSpeed(Integer maxUploadSpeed) {
+        mMaxUploadSpeed = maxUploadSpeed;
     }
+
+    public void setMaxDownloadSpeed(Integer maxDownloadSpeed) {
+        mMaxDownloadSpeed = maxDownloadSpeed;
+    }
+
+    public void setMaxConnections(Integer maxConnections) {
+        mMaxConnections = maxConnections;
+    }
+
+    public void setRemoveFilesAfterStop(Boolean b) {
+        mRemoveFiles = b;
+    }
+
 
 }

@@ -28,6 +28,7 @@ import android.widget.Button;
 
 import pct.droid.torrentstream.StreamStatus;
 import pct.droid.torrentstream.Torrent;
+import pct.droid.torrentstream.TorrentOptions;
 import pct.droid.torrentstream.TorrentStream;
 import pct.droid.torrentstream.listeners.TorrentListener;
 
@@ -41,7 +42,11 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTorrentStream = TorrentStream.init(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
+        TorrentOptions torrentOptions = new TorrentOptions();
+        torrentOptions.setSaveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        torrentOptions.setRemoveFilesAfterStop(true);
+
+        mTorrentStream = TorrentStream.init(torrentOptions);
         mTorrentStream.addListener(this);
 
         mButton = (Button) findViewById(R.id.button);
@@ -51,8 +56,8 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mTorrentStream.startStream("https://yts.to/torrent/download/FA1EBDA61C3EAECAF3F05B1E4FEC4CB79C703B55.torrent");
-            //mTorrentStream.startDownload("magnet:?xt=urn:btih:FA1EBDA61C3EAECAF3F05B1E4FEC4CB79C703B55&dn=Pitch+Perfect+2+%282015%29+%5B720p%5D&tr=http%3A%2F%2Ftracker.yify-torrents.com%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.org%3A80&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337");
+            //mTorrentStream.startStream("https://yts.to/torrent/download/FA1EBDA61C3EAECAF3F05B1E4FEC4CB79C703B55.torrent");
+            mTorrentStream.startStream("magnet:?xt=urn:btih:FA1EBDA61C3EAECAF3F05B1E4FEC4CB79C703B55&dn=Pitch+Perfect+2+%282015%29+%5B720p%5D&tr=http%3A%2F%2Ftracker.yify-torrents.com%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.org%3A80&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337");
         }
     };
 
