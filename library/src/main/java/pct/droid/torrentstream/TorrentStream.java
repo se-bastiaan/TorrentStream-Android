@@ -26,6 +26,7 @@ import com.frostwire.jlibtorrent.Downloader;
 import com.frostwire.jlibtorrent.Priority;
 import com.frostwire.jlibtorrent.Session;
 import com.frostwire.jlibtorrent.SettingsPack;
+import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.alerts.Alert;
 import com.frostwire.jlibtorrent.alerts.AlertType;
@@ -44,7 +45,6 @@ import java.util.List;
 import pct.droid.torrentstream.exceptions.DirectoryCreationException;
 import pct.droid.torrentstream.exceptions.NotInitializedException;
 import pct.droid.torrentstream.exceptions.TorrentInfoException;
-import pct.droid.torrentstream.listeners.TorrentAlertListener;
 import pct.droid.torrentstream.listeners.TorrentListener;
 import pct.droid.torrentstream.utils.FileUtils;
 import pct.droid.torrentstream.utils.ThreadUtils;
@@ -106,7 +106,6 @@ public class TorrentStream {
                     settingsPack.setAnonymousMode(true);
                     mTorrentSession.applySettings(settingsPack);
 
-                    mTorrentSession.addListener(mAlertListener);
                     mDHT = new DHT(mTorrentSession);
                     mDHT.start();
 
@@ -245,7 +244,7 @@ public class TorrentStream {
                 mCurrentTorrentUrl = torrentUrl;
 
                 File saveDirectory = new File(mTorrentOptions.mSaveLocation);
-                if(!saveDirectory.isDirectory()) {
+                if (!saveDirectory.isDirectory()) {
                     if (!saveDirectory.mkdirs()) {
                         for (final TorrentListener listener : mListener) {
                             ThreadUtils.runOnUiThread(new Runnable() {
@@ -260,9 +259,11 @@ public class TorrentStream {
                     }
                 }
 
+                mTorrentSession.removeListener(mAlertListener);
                 TorrentInfo torrentInfo = getTorrentInfo(torrentUrl);
+                mTorrentSession.addListener(mAlertListener);
 
-                if(torrentInfo == null) {
+                if (torrentInfo == null) {
                     for (final TorrentListener listener : mListener) {
                         ThreadUtils.runOnUiThread(new Runnable() {
                             @Override
@@ -317,7 +318,7 @@ public class TorrentStream {
                         while(!FileUtils.recursiveDelete(saveLocation) && tries < 5) {
                             tries++;
                             try {
-                                wait(1000); // If deleted failed then something is still using the file, wait and then retry
+                                Thread.sleep(1000); // If deleted failed then something is still using the file, wait and then retry
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -329,6 +330,15 @@ public class TorrentStream {
 
         if(mStreamingThread != null)
             mStreamingThread.interrupt();
+
+        for (final TorrentListener listener : mListener) {
+            ThreadUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onStreamStopped();
+                }
+            });
+        }
     }
 
     public TorrentOptions getOptions() {
@@ -367,10 +377,13 @@ public class TorrentStream {
 
         @Override
         public void alert(Alert<?> alert) {
-            if(alert.getType() == AlertType.TORRENT_ADDED) {
-                InternalTorrentListener listener = new InternalTorrentListener();
-                mCurrentTorrent = new Torrent(((TorrentAddedAlert) alert).getHandle(), listener);
-                mTorrentSession.addListener(mCurrentTorrent);
+            switch (alert.getType()) {
+                case TORRENT_ADDED:
+                    InternalTorrentListener listener = new InternalTorrentListener();
+                    TorrentHandle th = mTorrentSession.findTorrent(((TorrentAddedAlert) alert).getHandle().getInfoHash());
+                    mCurrentTorrent = new Torrent(th, listener, mTorrentOptions.mPrepareSize);
+                    mTorrentSession.addListener(mCurrentTorrent);
+                    break;
             }
         }
     };
@@ -419,6 +432,11 @@ public class TorrentStream {
                     }
                 });
             }
+        }
+
+        @Override
+        public void onStreamStopped() {
+            // Not used
         }
 
         @Override

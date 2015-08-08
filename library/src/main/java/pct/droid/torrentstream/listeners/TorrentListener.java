@@ -17,8 +17,6 @@
 
 package pct.droid.torrentstream.listeners;
 
-import java.io.File;
-
 import pct.droid.torrentstream.StreamStatus;
 import pct.droid.torrentstream.Torrent;
 
@@ -32,4 +30,6 @@ public interface TorrentListener {
     void onStreamReady(Torrent torrent);
 
     void onStreamProgress(Torrent torrent, StreamStatus status);
+
+    void onStreamStopped();
 }

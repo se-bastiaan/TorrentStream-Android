@@ -26,6 +26,7 @@ public class TorrentOptions {
     protected String mSaveLocation = "/";
     protected Integer mMaxDownloadSpeed = 0, mMaxUploadSpeed = 0, mMaxConnections = 200;
     protected Boolean mRemoveFiles = false;
+    protected Long mPrepareSize = 10 * 1024L * 1024L;
 
     public void setSaveLocation(String saveLocation) {
         mSaveLocation = saveLocation;
@@ -49,6 +50,10 @@ public class TorrentOptions {
 
     public void setRemoveFilesAfterStop(Boolean b) {
         mRemoveFiles = b;
+    }
+
+    public void setPrepareSize(Long prepareSize) {
+        mPrepareSize = prepareSize;
     }
 
 
