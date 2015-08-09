@@ -206,6 +206,15 @@ public class Torrent implements AlertListener {
         mPiecesToPrepare = activePieceCount;
     }
 
+    public String[] getFileNames() {
+        FileStorage fileStorage = mTorrentHandle.getTorrentInfo().getFiles();
+        String[] fileNames = new String[fileStorage.getNumFiles()];
+        for(int i = 0; i < fileStorage.getNumFiles(); i++) {
+            fileNames[i] = fileStorage.getFileName(i);
+        }
+        return fileNames;
+    }
+
     /**
      * Prepare torrent for playback. Prioritize the first `mPiecesToPrepare` pieces and the last `mPiecesToPrepare` pieces
      * from `mFirstPieceIndex` and `mLastPieceIndex`. Ignore all other pieces.
@@ -261,7 +270,7 @@ public class Torrent implements AlertListener {
             mTorrentHandle.setSequentialDownload(true);
         } else {
             for (int i = mFirstPieceIndex + mPiecesToPrepare; i < mFirstPieceIndex + mPiecesToPrepare + 5; i++) {
-                mTorrentHandle.setPiecePriority(i, Priority.NORMAL);
+                mTorrentHandle.setPiecePriority(i, Priority.SEVEN);
             }
         }
     }
