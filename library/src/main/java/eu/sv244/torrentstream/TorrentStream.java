@@ -359,6 +359,10 @@ public class TorrentStream {
         return mIsStreaming;
     }
 
+    public String getCurrentTorrentUrl() {
+        return mCurrentTorrentUrl;
+    }
+
     public void addListener(TorrentListener listener) {
         if(listener != null)
             mListener.add(listener);

@@ -229,18 +229,20 @@ public class Torrent implements AlertListener {
         Priority[] priorities = mTorrentHandle.getPiecePriorities();
         for (int i = 0; i < priorities.length; i++) {
             if(priorities[i] != Priority.IGNORE) {
-                mTorrentHandle.setPiecePriority(i, Priority.IGNORE);
+                mTorrentHandle.setPiecePriority(i, Priority.NORMAL);
             }
         }
 
         for (int i = 0; i < mPiecesToPrepare; i++) {
             indices.add(mLastPieceIndex - i);
-            mTorrentHandle.setPiecePriority(mLastPieceIndex - i, Priority.NORMAL);
+            mTorrentHandle.setPiecePriority(mLastPieceIndex - i, Priority.SEVEN);
+            mTorrentHandle.setPieceDeadline(mLastPieceIndex - i, 1000);
         }
 
         for (int i = 0; i < mPiecesToPrepare; i++) {
             indices.add(mFirstPieceIndex + i);
-            mTorrentHandle.setPiecePriority(mFirstPieceIndex + i, Priority.NORMAL);
+            mTorrentHandle.setPiecePriority(mFirstPieceIndex + i, Priority.SEVEN);
+            mTorrentHandle.setPieceDeadline(mFirstPieceIndex + i, 1000);
         }
 
         mPreparePieces = indices;
@@ -271,6 +273,7 @@ public class Torrent implements AlertListener {
         } else {
             for (int i = mFirstPieceIndex + mPiecesToPrepare; i < mFirstPieceIndex + mPiecesToPrepare + 5; i++) {
                 mTorrentHandle.setPiecePriority(i, Priority.SEVEN);
+                mTorrentHandle.setPieceDeadline(i, 1000);
             }
         }
     }
@@ -285,7 +288,8 @@ public class Torrent implements AlertListener {
 
             for(int i = alert.getPieceIndex() - mFirstPieceIndex; i < mHasPieces.length; i++) {
                 if(!mHasPieces[i]) {
-                    mTorrentHandle.setPiecePriority(i + mFirstPieceIndex, Priority.NORMAL);
+                    mTorrentHandle.setPiecePriority(i + mFirstPieceIndex, Priority.SEVEN);
+                    mTorrentHandle.setPieceDeadline(i + mFirstPieceIndex, 1000);
                     break;
                 }
             }
