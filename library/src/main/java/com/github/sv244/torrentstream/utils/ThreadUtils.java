@@ -17,12 +17,21 @@
  *
  */
 
-package eu.sv244.torrentstream.exceptions;
+package com.github.sv244.torrentstream.utils;
 
-public class TorrentInfoException extends Exception {
+import android.os.Handler;
+import android.os.Looper;
 
-    public TorrentInfoException() {
-        super("No torrent info could be found");
+public class ThreadUtils {
+
+    /**
+     * Execute the given {@link Runnable} on the ui thread.
+     *
+     * @param runnable The runnable to execute.
+     */
+    public static void runOnUiThread(Runnable runnable) {
+        Thread uiThread = Looper.getMainLooper().getThread();
+        if (Thread.currentThread() != uiThread) new Handler(Looper.getMainLooper()).post(runnable);
+        else runnable.run();
     }
-
 }

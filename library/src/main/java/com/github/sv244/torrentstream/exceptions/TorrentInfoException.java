@@ -17,12 +17,12 @@
  *
  */
 
-package eu.sv244.torrentstream.exceptions;
+package com.github.sv244.torrentstream.exceptions;
 
-public class DirectoryCreationException extends Exception {
+public class TorrentInfoException extends Exception {
 
-    public DirectoryCreationException() {
-        super("Could not create save directory");
+    public TorrentInfoException() {
+        super("No torrent info could be found");
     }
 
 }

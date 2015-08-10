@@ -15,21 +15,12 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.sv244.torrentstream.listeners;
+package com.github.sv244.torrentstream.exceptions;
 
-import eu.sv244.torrentstream.StreamStatus;
-import eu.sv244.torrentstream.Torrent;
+public class NotInitializedException extends Exception {
 
-public interface TorrentListener {
-    void onStreamPrepared(Torrent torrent);
+    public NotInitializedException() {
+        super("TorrentStreamer is not initialized. Call init() first before getting an instance.");
+    }
 
-    void onStreamStarted(Torrent torrent);
-
-    void onStreamError(Torrent torrent, Exception e);
-
-    void onStreamReady(Torrent torrent);
-
-    void onStreamProgress(Torrent torrent, StreamStatus status);
-
-    void onStreamStopped();
 }

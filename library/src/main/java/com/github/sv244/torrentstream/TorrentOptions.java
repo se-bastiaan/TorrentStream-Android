@@ -17,7 +17,7 @@
  *
  */
 
-package eu.sv244.torrentstream;
+package com.github.sv244.torrentstream;
 
 import java.io.File;
 

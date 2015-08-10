@@ -13,12 +13,14 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+def groupId = 'com.github.sv244'
+def artifactId = 'torrentstream-android'
+def version = '1.0'
+def localReleaseDest = "${buildDir}/release/${version}"
 
-group 'eu.sv244'
-version '1.0'
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 android {
     compileSdkVersion 22
@@ -28,13 +30,18 @@ android {
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    lintOptions {
+        abortOnError false
     }
 }
 
@@ -44,83 +51,78 @@ dependencies {
     compile 'com.frostwire:jlibtorrent-android:1.1.0.3'
 }
 
-def siteUrl = 'https://github.com/sv244/TorrentStream-Android'
-def gitUrl = 'https://github.com/sv244/TorrentStream-Android.git'
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-def bintrayUser = properties.getProperty('bintray.user')
-def bintrayKey = properties.getProperty('bintray.key')
-
-bintray {
-    user = bintrayUser
-    key = bintrayKey
-
-    configurations = ['archives'] //When uploading configuration files
-    pkg {
-        repo = 'maven'
-        name = 'TorrentStream-Android'
-        desc = 'Torrent streamer for Android'
-        websiteUrl = siteUrl
-        issueTrackerUrl = 'https://github.com/sv244/TorrentStream-Android/issues'
-        vcsUrl = gitUrl
-        licenses = ['GPL-3.0']
-        labels = ['aar', 'android', 'torrent']
-        publicDownloadNumbers = false
-    }
-}
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'Torrent streamer for Android'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'GNU General Public License, Version 3.0'
-                        url 'http://www.gnu.org/licenses/gpl-3.0.html'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'sv244'
-                        name 'sv244'
-                        email 'sv244@its.pt'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
-}
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-task javadoc(type: Javadoc) {
+task androidJavadocs(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
     classifier = 'javadoc'
-    from javadoc.destinationDir
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
 }
 
 artifacts {
-    archives javadocJar
-    archives sourcesJar
+    archives androidSourcesJar
+    archives androidJavadocsJar
 }
 
-task findConventions << {
-    println project.getConvention()
+signing {
+    sign configurations.archives
 }
+
+uploadArchives {
+    repositories.mavenDeployer {
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+        pom.groupId = groupId
+        pom.artifactId = artifactId
+        pom.version = version
+        pom.project {
+            name 'TorrentStream-Android'
+            packaging 'aar'
+            description 'Android Torrent Streaming library'
+            url 'https://github.com/sv244/TorrentStream-Android'
+
+            scm {
+                url 'https://github.com/sv244/TorrentStream-Android'
+                connection 'scm:git@github.com:sv244/TorrentStream-Android.git'
+                developerConnection 'scm:git@github.com:sv244/TorrentStream-Android.git'
+            }
+
+            licenses {
+                license {
+                    name 'GNU General Public License, Version 3.0'
+                    url 'www.gnu.org/licenses/gpl-3.0.html'
+                }
+            }
+
+            developers {
+                developer {
+                    id 'sv244'
+                    name 'sv244'
+                    email 'sv244@it.pt'
+                }
+            }
+        }
+
+        repository(url: "file://${localReleaseDest}")
+    }
+}
+
+task zipRelease(type: Zip) {
+    from localReleaseDest
+    destinationDir buildDir
+    archiveName "release-${version}.zip"
+}
+
+task generateRelease << {
+    println "Release ${version} can be found at ${localReleaseDest}/"
+    println "Release ${version} zipped can be found ${buildDir}/release-${version}.zip"
+}
+
+generateRelease.dependsOn(uploadArchives)
+generateRelease.dependsOn(zipRelease)

@@ -15,18 +15,21 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.sv244.torrentstream;
+package com.github.sv244.torrentstream.listeners;
 
-public class StreamStatus {
-    public final float progress;
-    public final int bufferProgress;
-    public final int seeds;
-    public final float downloadSpeed;
+import com.github.sv244.torrentstream.StreamStatus;
+import com.github.sv244.torrentstream.Torrent;
 
-    protected StreamStatus(float progress, int bufferProgress, int seeds, int downloadSpeed) {
-        this.progress = progress;
-        this.bufferProgress = bufferProgress;
-        this.seeds = seeds;
-        this.downloadSpeed = downloadSpeed;
-    }
+public interface TorrentListener {
+    void onStreamPrepared(Torrent torrent);
+
+    void onStreamStarted(Torrent torrent);
+
+    void onStreamError(Torrent torrent, Exception e);
+
+    void onStreamReady(Torrent torrent);
+
+    void onStreamProgress(Torrent torrent, StreamStatus status);
+
+    void onStreamStopped();
 }

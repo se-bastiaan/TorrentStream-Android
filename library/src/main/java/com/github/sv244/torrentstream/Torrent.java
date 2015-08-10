@@ -15,7 +15,7 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.sv244.torrentstream;
+package com.github.sv244.torrentstream;
 
 import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.FileStorage;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import eu.sv244.torrentstream.listeners.TorrentListener;
+import com.github.sv244.torrentstream.listeners.TorrentListener;
 
 public class Torrent implements AlertListener {
 

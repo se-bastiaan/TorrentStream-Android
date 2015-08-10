@@ -29,11 +29,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import eu.sv244.torrentstream.StreamStatus;
-import eu.sv244.torrentstream.Torrent;
-import eu.sv244.torrentstream.TorrentOptions;
-import eu.sv244.torrentstream.TorrentStream;
-import eu.sv244.torrentstream.listeners.TorrentListener;
+import com.github.sv244.torrentstream.StreamStatus;
+import com.github.sv244.torrentstream.Torrent;
+import com.github.sv244.torrentstream.TorrentOptions;
+import com.github.sv244.torrentstream.TorrentStream;
+import com.github.sv244.torrentstream.listeners.TorrentListener;
 
 public class MainActivity extends AppCompatActivity implements TorrentListener {
 
