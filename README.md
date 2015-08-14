@@ -3,6 +3,8 @@ TorrentStream-Android
 
 A torrent streamer library for Android based on [jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
 
+Used in [Popcorn Time for Android](https://github.com/popcorn-official/popcorn-android) and definitely not done yet.
+
 Using
 --------
 
