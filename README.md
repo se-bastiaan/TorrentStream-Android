@@ -10,6 +10,8 @@ Using
 
 See the sample.
 
+Available on Maven Central as 'com.github.sv244:torrentstream-android'
+
 License
 --------
 
