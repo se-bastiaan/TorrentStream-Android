@@ -20,7 +20,6 @@ package com.github.sv244.torrentstream;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.DHT;
 import com.frostwire.jlibtorrent.Downloader;
 import com.frostwire.jlibtorrent.Priority;
@@ -28,9 +27,15 @@ import com.frostwire.jlibtorrent.Session;
 import com.frostwire.jlibtorrent.SettingsPack;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
-import com.frostwire.jlibtorrent.alerts.Alert;
-import com.frostwire.jlibtorrent.alerts.AlertType;
 import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
+import com.github.sv244.torrentstream.exceptions.DirectoryCreationException;
+import com.github.sv244.torrentstream.exceptions.NotInitializedException;
+import com.github.sv244.torrentstream.exceptions.TorrentInfoException;
+import com.github.sv244.torrentstream.listeners.DHTStatsAlertListener;
+import com.github.sv244.torrentstream.listeners.TorrentAddedAlertListener;
+import com.github.sv244.torrentstream.listeners.TorrentListener;
+import com.github.sv244.torrentstream.utils.FileUtils;
+import com.github.sv244.torrentstream.utils.ThreadUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,13 +46,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.github.sv244.torrentstream.exceptions.DirectoryCreationException;
-import com.github.sv244.torrentstream.exceptions.NotInitializedException;
-import com.github.sv244.torrentstream.exceptions.TorrentInfoException;
-import com.github.sv244.torrentstream.listeners.TorrentListener;
-import com.github.sv244.torrentstream.utils.FileUtils;
-import com.github.sv244.torrentstream.utils.ThreadUtils;
 
 public class TorrentStream {
 
@@ -61,6 +59,7 @@ public class TorrentStream {
 
     private Torrent mCurrentTorrent;
     private String mCurrentTorrentUrl;
+    private Integer mDhtNodes = 0;
 
     private List<TorrentListener> mListener = new ArrayList<>();
 
@@ -105,6 +104,8 @@ public class TorrentStream {
                     SettingsPack settingsPack = new SettingsPack();
                     settingsPack.setAnonymousMode(true);
                     mTorrentSession.applySettings(settingsPack);
+
+                    mTorrentSession.addListener(mDhtStatsAlertListener);
 
                     mDHT = new DHT(mTorrentSession);
                     mDHT.start();
@@ -167,7 +168,6 @@ public class TorrentStream {
             Downloader d = new Downloader(mTorrentSession);
 
             byte[] data = d.fetchMagnet(torrentUrl, 30000);
-
             if(data != null) {
                 return TorrentInfo.bdecode(data);
             } else {
@@ -255,9 +255,9 @@ public class TorrentStream {
                     }
                 }
 
-                mTorrentSession.removeListener(mAlertListener);
+                mTorrentSession.removeListener(mTorrentAddedAlertListener);
                 TorrentInfo torrentInfo = getTorrentInfo(torrentUrl);
-                mTorrentSession.addListener(mAlertListener);
+                mTorrentSession.addListener(mTorrentAddedAlertListener);
 
                 if (torrentInfo == null) {
                     for (final TorrentListener listener : mListener) {
@@ -359,6 +359,10 @@ public class TorrentStream {
         return mCurrentTorrentUrl;
     }
 
+    public Integer getTotalDhtNodes() {
+        return mDhtNodes;
+    }
+
     public void addListener(TorrentListener listener) {
         if(listener != null)
             mListener.add(listener);
@@ -369,22 +373,20 @@ public class TorrentStream {
             mListener.remove(listener);
     }
 
-    private AlertListener mAlertListener = new AlertListener() {
+    private DHTStatsAlertListener mDhtStatsAlertListener = new DHTStatsAlertListener() {
         @Override
-        public int[] types() {
-            return new int[] { AlertType.TORRENT_ADDED.getSwig() };
+        public void stats(int totalDhtNodes) {
+            mDhtNodes = totalDhtNodes;
         }
+    };
 
+    private TorrentAddedAlertListener mTorrentAddedAlertListener = new TorrentAddedAlertListener() {
         @Override
-        public void alert(Alert<?> alert) {
-            switch (alert.getType()) {
-                case TORRENT_ADDED:
-                    InternalTorrentListener listener = new InternalTorrentListener();
-                    TorrentHandle th = mTorrentSession.findTorrent(((TorrentAddedAlert) alert).getHandle().getInfoHash());
-                    mCurrentTorrent = new Torrent(th, listener, mTorrentOptions.mPrepareSize);
-                    mTorrentSession.addListener(mCurrentTorrent);
-                    break;
-            }
+        public void torrentAdded(TorrentAddedAlert alert) {
+            InternalTorrentListener listener = new InternalTorrentListener();
+            TorrentHandle th = mTorrentSession.findTorrent((alert).getHandle().getInfoHash());
+            mCurrentTorrent = new Torrent(th, listener, mTorrentOptions.mPrepareSize);
+            mTorrentSession.addListener(mCurrentTorrent);
         }
     };
 
