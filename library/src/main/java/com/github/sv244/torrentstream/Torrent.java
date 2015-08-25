@@ -253,10 +253,7 @@ public class Torrent implements AlertListener {
         TorrentInfo torrentInfo = mTorrentHandle.getTorrentInfo();
         TorrentStatus status = mTorrentHandle.getStatus();
 
-        double blockCount = 0;
-        for(Integer index : indices) {
-            blockCount += (int) Math.ceil(torrentInfo.getPieceSize(index) / status.getBlockSize());
-        }
+        double blockCount = indices.size() * torrentInfo.getPieceLength() / status.getBlockSize();
 
         mProgressStep = 100 / blockCount;
 
@@ -308,6 +305,8 @@ public class Torrent implements AlertListener {
             if (mPreparePieces.size() == 0) {
                 startSequentialMode();
 
+                mPrepareProgress = 100d;
+                sendStreamProgress();
                 mState = State.STREAMING;
 
                 if (mListener != null)
@@ -320,6 +319,7 @@ public class Torrent implements AlertListener {
         for (Integer index : mPreparePieces) {
             if (index == alert.getPieceIndex()) {
                 mPrepareProgress += mProgressStep;
+                break;
             }
         }
 
