@@ -166,10 +166,6 @@ public class TorrentStream {
         if (torrentUrl.startsWith("magnet")) {
             Downloader d = new Downloader(mTorrentSession);
 
-            if (mDHT.totalNodes() < 1) {
-                mDHT.waitNodes(30);
-            }
-
             byte[] data = d.fetchMagnet(torrentUrl, 30000);
 
             if(data != null) {
