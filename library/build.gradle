@@ -15,7 +15,7 @@ buildscript {
 
 def groupId = 'com.github.sv244'
 def artifactId = 'torrentstream-android'
-def version = '1.0'
+def version = '1.0.1'
 def localReleaseDest = "${buildDir}/release/${version}"
 
 apply plugin: 'com.android.library'
@@ -30,7 +30,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
-        versionName '1.0'
+        versionName '1.0.1'
     }
 
     buildTypes {
