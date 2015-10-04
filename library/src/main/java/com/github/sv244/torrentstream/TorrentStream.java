@@ -17,6 +17,7 @@
 
 package com.github.sv244.torrentstream;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -39,6 +40,8 @@ import com.github.sv244.torrentstream.utils.ThreadUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -168,12 +171,14 @@ public class TorrentStream {
             Downloader d = new Downloader(mTorrentSession);
 
             byte[] data = d.fetchMagnet(torrentUrl, 30000);
-            if(data != null) {
-                return TorrentInfo.bdecode(data);
-            } else {
-                return null;
-            }
-        } else {
+            if(data != null)
+                try {
+                    return TorrentInfo.bdecode(data);
+                } catch (IllegalArgumentException e) {
+                    // Eat exception
+                }
+
+        } else if(torrentUrl.startsWith("http") || torrentUrl.startsWith("https")){
             try {
                 URL url = new URL(torrentUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -187,17 +192,7 @@ public class TorrentStream {
                 byte[] responseByteArray = new byte[0];
 
                 if(connection.getResponseCode() == 200) {
-                    ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-
-                    int bufferSize = 1024;
-                    byte[] buffer = new byte[bufferSize];
-
-                    int len = 0;
-                    while ((len = inputStream.read(buffer)) != -1) {
-                        byteBuffer.write(buffer, 0, len);
-                    }
-
-                    responseByteArray = byteBuffer.toByteArray();
+                    responseByteArray = getBytesFromInputStream(inputStream);
                 }
 
                 inputStream.close();
@@ -207,14 +202,47 @@ public class TorrentStream {
                     return TorrentInfo.bdecode(responseByteArray);
                 }
             } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return null;
+                // Eat exception
             } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+                // Eat exception
+            } catch (IllegalArgumentException e) {
+                // Eat exception
+            }
+        } else if(torrentUrl.startsWith("file")) {
+            Uri path = Uri.parse(torrentUrl);
+            File file = new File(path.getPath());
+
+            try {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                byte[] responseByteArray = getBytesFromInputStream(fileInputStream);
+                fileInputStream.close();
+
+                if(responseByteArray.length > 0) {
+                    return TorrentInfo.bdecode(responseByteArray);
+                }
+            } catch (FileNotFoundException e) {
+                // Eat exception
+            } catch (IOException e) {
+                // Eat exception
+            } catch (IllegalArgumentException e) {
+                // Eat exception
             }
         }
         return null;
+    }
+
+    private byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+
+        return byteBuffer.toByteArray();
     }
 
     /**
@@ -316,7 +344,7 @@ public class TorrentStream {
                             try {
                                 Thread.sleep(1000); // If deleted failed then something is still using the file, wait and then retry
                             } catch (InterruptedException e) {
-                                e.printStackTrace();
+                                // Eat exception
                             }
                         }
                     }
