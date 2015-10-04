@@ -23,8 +23,8 @@ import java.io.File;
 
 public class TorrentOptions {
 
-    protected String mSaveLocation = "/";
-    protected Integer mMaxDownloadSpeed = 0, mMaxUploadSpeed = 0, mMaxConnections = 200;
+    protected String mSaveLocation = "/", mProxyHost, mProxyUsername, mProxyPassword, mPeerFingerprint;
+    protected Integer mMaxDownloadSpeed = 0, mMaxUploadSpeed = 0, mMaxConnections = 200, mMaxDht = 88, mListeningPort = -1;
     protected Boolean mRemoveFiles = false;
     protected Long mPrepareSize = 10 * 1024L * 1024L;
 
@@ -48,12 +48,30 @@ public class TorrentOptions {
         mMaxConnections = maxConnections;
     }
 
+    public void setMaxActiveDHT(Integer maxActiveDHT) {
+        mMaxDht = maxActiveDHT;
+    }
+
     public void setRemoveFilesAfterStop(Boolean b) {
         mRemoveFiles = b;
     }
 
     public void setPrepareSize(Long prepareSize) {
         mPrepareSize = prepareSize;
+    }
+
+    public void setListeningPort(Integer port) {
+        mListeningPort = port;
+    }
+
+    public void setProxy(String host, String username, String password) {
+        mProxyHost = host;
+        mProxyUsername = username;
+        mProxyPassword = password;
+    }
+
+    public void setPeerFingerprint(String peerId) {
+        mPeerFingerprint = peerId;
     }
 
 

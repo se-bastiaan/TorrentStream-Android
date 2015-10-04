@@ -29,6 +29,7 @@ import com.frostwire.jlibtorrent.SettingsPack;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
+import com.frostwire.jlibtorrent.swig.settings_pack;
 import com.github.sv244.torrentstream.exceptions.DirectoryCreationException;
 import com.github.sv244.torrentstream.exceptions.NotInitializedException;
 import com.github.sv244.torrentstream.exceptions.TorrentInfoException;
@@ -70,7 +71,7 @@ public class TorrentStream {
     private Handler mLibTorrentHandler, mStreamingHandler;
 
     private TorrentStream(TorrentOptions options) {
-        mTorrentOptions = options;
+        setOptions(options);
         initialise();
     }
 
@@ -376,6 +377,23 @@ public class TorrentStream {
         settingsPack.setConnectionsLimit(mTorrentOptions.mMaxConnections);
         settingsPack.setDownloadRateLimit(mTorrentOptions.mMaxDownloadSpeed);
         settingsPack.setUploadRateLimit(mTorrentOptions.mMaxUploadSpeed);
+        settingsPack.setInteger(settings_pack.int_types.active_dht_limit.swigValue(), mTorrentOptions.mMaxDht);
+
+        if(mTorrentOptions.mListeningPort != -1) {
+            String if_string = String.format("%s:%d", "0.0.0.0", mTorrentOptions.mListeningPort);
+            settingsPack.setString(settings_pack.string_types.listen_interfaces.swigValue(), if_string);
+        }
+
+        if(mTorrentOptions.mProxyHost != null)
+            settingsPack.setString(settings_pack.string_types.proxy_hostname.swigValue(), mTorrentOptions.mProxyHost);
+        if(mTorrentOptions.mProxyUsername != null)
+            settingsPack.setString(settings_pack.string_types.proxy_username.swigValue(), mTorrentOptions.mProxyUsername);
+        if(mTorrentOptions.mProxyPassword != null)
+            settingsPack.setString(settings_pack.string_types.proxy_password.swigValue(), mTorrentOptions.mProxyPassword);
+
+        if(mTorrentOptions.mPeerFingerprint != null)
+            settingsPack.setString(settings_pack.string_types.peer_fingerprint.swigValue(), mTorrentOptions.mPeerFingerprint);
+
         mTorrentSession.applySettings(settingsPack);
     }
 

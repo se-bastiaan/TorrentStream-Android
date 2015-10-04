@@ -47,8 +47,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.frostwire:jlibtorrent:1.1.0.7'
-    compile 'com.frostwire:jlibtorrent-android:1.1.0.7'
+    compile 'com.frostwire:jlibtorrent:1.1.0.9'
+    compile 'com.frostwire:jlibtorrent-android:1.1.0.9'
 }
 
 task androidJavadocs(type: Javadoc) {
