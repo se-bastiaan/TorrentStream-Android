@@ -25,7 +25,7 @@ public class TorrentOptions {
 
     protected String mSaveLocation = "/", mProxyHost, mProxyUsername, mProxyPassword, mPeerFingerprint;
     protected Integer mMaxDownloadSpeed = 0, mMaxUploadSpeed = 0, mMaxConnections = 200, mMaxDht = 88, mListeningPort = -1;
-    protected Boolean mRemoveFiles = false;
+    protected Boolean mRemoveFiles = false, mAnonymousMode = true;
     protected Long mPrepareSize = 10 * 1024L * 1024L;
 
     public void setSaveLocation(String saveLocation) {
@@ -72,6 +72,13 @@ public class TorrentOptions {
 
     public void setPeerFingerprint(String peerId) {
         mPeerFingerprint = peerId;
+        mAnonymousMode = false;
+    }
+
+    public void setAnonymousMode(Boolean enable) {
+        mAnonymousMode = enable;
+        if(mAnonymousMode)
+            mPeerFingerprint = null;
     }
 
 

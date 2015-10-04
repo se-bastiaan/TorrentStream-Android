@@ -71,7 +71,7 @@ public class TorrentStream {
     private Handler mLibTorrentHandler, mStreamingHandler;
 
     private TorrentStream(TorrentOptions options) {
-        setOptions(options);
+        mTorrentOptions = options;
         initialise();
     }
 
@@ -104,10 +104,7 @@ public class TorrentStream {
                 @Override
                 public void run() {
                     mTorrentSession = new Session();
-
-                    SettingsPack settingsPack = new SettingsPack();
-                    settingsPack.setAnonymousMode(true);
-                    mTorrentSession.applySettings(settingsPack);
+                    setOptions(mTorrentOptions);
 
                     mTorrentSession.addListener(mDhtStatsAlertListener);
 
@@ -374,6 +371,8 @@ public class TorrentStream {
         mTorrentOptions = options;
 
         SettingsPack settingsPack = new SettingsPack();
+        settingsPack.setAnonymousMode(mTorrentOptions.mAnonymousMode);
+
         settingsPack.setConnectionsLimit(mTorrentOptions.mMaxConnections);
         settingsPack.setDownloadRateLimit(mTorrentOptions.mMaxDownloadSpeed);
         settingsPack.setUploadRateLimit(mTorrentOptions.mMaxUploadSpeed);
