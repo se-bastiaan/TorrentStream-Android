@@ -114,7 +114,7 @@ uploadArchives {
 }
 
 task zipRelease(type: Zip) {
-    from localReleaseDest
+    from (localReleaseDest + '/com/github/sv244/torrentstream-android/' + version + '/')
     destinationDir buildDir
     archiveName "release-${version}.zip"
 }
