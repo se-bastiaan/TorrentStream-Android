@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.3.0'
+        classpath 'com.android.tools.build:gradle:1.5.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
 
@@ -15,7 +15,7 @@ buildscript {
 
 def groupId = 'com.github.sv244'
 def artifactId = 'torrentstream-android'
-def version = '1.0.2'
+def version = '1.1.0'
 def localReleaseDest = "${buildDir}/release/${version}"
 
 apply plugin: 'com.android.library'
@@ -24,13 +24,13 @@ apply plugin: 'signing'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
-        versionName '1.0.2'
+        versionName '1.1.0'
     }
 
     buildTypes {
@@ -45,10 +45,17 @@ android {
     }
 }
 
+ext {
+    libtorrentVersion = '1.1.0.11'
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.frostwire:jlibtorrent:1.1.0.9'
-    compile 'com.frostwire:jlibtorrent-android:1.1.0.9'
+    compile "com.frostwire:jlibtorrent:$libtorrentVersion"
+    compile "com.frostwire:jlibtorrent-android-arm:$libtorrentVersion"
+    compile "com.frostwire:jlibtorrent-android-arm64:$libtorrentVersion"
+    compile "com.frostwire:jlibtorrent-android-x86:$libtorrentVersion"
+    compile "com.frostwire:jlibtorrent-android-x86_64:$libtorrentVersion"
 }
 
 task androidJavadocs(type: Javadoc) {

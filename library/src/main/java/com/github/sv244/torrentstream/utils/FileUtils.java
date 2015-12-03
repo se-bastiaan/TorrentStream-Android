@@ -27,6 +27,7 @@ public class FileUtils {
      * Delete every item below the File location
      *
      * @param file Location
+     * @return {@code true} when successful delete
      */
     public static boolean recursiveDelete(File file) {
         if (file.isDirectory()) {
