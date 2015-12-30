@@ -41,7 +41,7 @@ public abstract class DHTStatsAlertListener implements AlertListener {
     public abstract void stats(int totalDhtNodes);
 
     private int countTotalDHTNodes(DhtStatsAlert alert) {
-        final DHTRoutingBucket[] routingTable = alert.getRoutingTable();
+        final DHTRoutingBucket[] routingTable = alert.routingTable();
 
         int totalNodes = 0;
         if (routingTable != null && routingTable.length > 0) {

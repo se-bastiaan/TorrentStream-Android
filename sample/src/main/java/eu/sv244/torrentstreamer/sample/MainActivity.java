@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
 
     @Override
     public void onStreamError(Torrent torrent, Exception e) {
-        Log.d("Torrent", "onStreamError");
+        Log.e("Torrent", "onStreamError", e);
         mButton.setText("Start stream");
     }
 
