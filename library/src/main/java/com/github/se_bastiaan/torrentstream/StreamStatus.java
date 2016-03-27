@@ -15,7 +15,7 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.sv244.torrentstream;
+package com.github.se_bastiaan.torrentstream;
 
 public class StreamStatus {
     public final float progress;

@@ -17,8 +17,9 @@
  *
  */
 
-package eu.sv244.torrentstreamer.sample;
+package com.github.se_bastiaan.torrenstreamer.sample;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,20 +30,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.github.sv244.torrentstream.StreamStatus;
-import com.github.sv244.torrentstream.Torrent;
-import com.github.sv244.torrentstream.TorrentOptions;
-import com.github.sv244.torrentstream.TorrentStream;
-import com.github.sv244.torrentstream.listeners.TorrentListener;
+import com.github.se_bastiaan.torrentstream.StreamStatus;
+import com.github.se_bastiaan.torrentstream.Torrent;
+import com.github.se_bastiaan.torrentstream.TorrentOptions;
+import com.github.se_bastiaan.torrentstream.TorrentStream;
+import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import github.se_bastiaan.torrentstreamer.sample.R;
+
+@SuppressLint("SetTextI18n")
 public class MainActivity extends AppCompatActivity implements TorrentListener {
 
-    private Button mButton;
-    private ProgressBar mProgressBar;
-    private TorrentStream mTorrentStream;
+    private Button button;
+    private ProgressBar progressBar;
+    private TorrentStream torrentStream;
 
     private String mStreamUrl = "magnet:?xt=urn:btih:D60795899F8488E7E489BA642DEFBCE1B23C9DA0&dn=Kingsman%3A+The+Secret+Service+%282014%29+%5B720p%5D&tr=http%3A%2F%2Ftracker.yify-torrents.com%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.org%3A80&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337";
 
@@ -61,32 +65,33 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
             }
         }
 
-        TorrentOptions torrentOptions = new TorrentOptions();
-        torrentOptions.setSaveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
-        torrentOptions.setRemoveFilesAfterStop(true);
+        TorrentOptions torrentOptions = new TorrentOptions.Builder()
+                .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+                .removeFilesAfterStop(true)
+                .build();
 
-        mTorrentStream = TorrentStream.init(torrentOptions);
-        mTorrentStream.addListener(this);
+        torrentStream = TorrentStream.init(torrentOptions);
+        torrentStream.addListener(this);
 
-        mButton = (Button) findViewById(R.id.button);
-        mButton.setOnClickListener(mOnClickListener);
-        mProgressBar = (ProgressBar) findViewById(R.id.progress);
+        button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(mOnClickListener);
+        progressBar = (ProgressBar) findViewById(R.id.progress);
 
-        mProgressBar.setMax(100);
+        progressBar.setMax(100);
     }
 
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mProgressBar.setProgress(0);
-            if(mTorrentStream.isStreaming()) {
-                mTorrentStream.stopStream();
-                mButton.setText("Start stream");
+            progressBar.setProgress(0);
+            if(torrentStream.isStreaming()) {
+                torrentStream.stopStream();
+                button.setText("Start stream");
                 return;
             }
-            //mTorrentStream.startStream("https://yts.to/torrent/download/D60795899F8488E7E489BA642DEFBCE1B23C9DA0.torrent");
-            mTorrentStream.startStream(mStreamUrl);
-            mButton.setText("Stop stream");
+            //torrentStream.startStream("https://yts.to/torrent/download/D60795899F8488E7E489BA642DEFBCE1B23C9DA0.torrent");
+            torrentStream.startStream(mStreamUrl);
+            button.setText("Stop stream");
         }
     };
 
@@ -104,12 +109,12 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
     @Override
     public void onStreamError(Torrent torrent, Exception e) {
         Log.e("Torrent", "onStreamError", e);
-        mButton.setText("Start stream");
+        button.setText("Start stream");
     }
 
     @Override
     public void onStreamReady(Torrent torrent) {
-        mProgressBar.setProgress(100);
+        progressBar.setProgress(100);
         Log.d("Torrent", "onStreamReady: " + torrent.getVideoFile());
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(torrent.getVideoFile().toString()));
@@ -119,9 +124,9 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
 
     @Override
     public void onStreamProgress(Torrent torrent, StreamStatus status) {
-        if(status.bufferProgress <= 100 && mProgressBar.getProgress() < 100 && mProgressBar.getProgress() != status.bufferProgress) {
+        if(status.bufferProgress <= 100 && progressBar.getProgress() < 100 && progressBar.getProgress() != status.bufferProgress) {
             Log.d("Torrent", "Progress: " + status.bufferProgress);
-            mProgressBar.setProgress(status.bufferProgress);
+            progressBar.setProgress(status.bufferProgress);
         }
     }
 

@@ -15,7 +15,7 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.sv244.torrentstream;
+package com.github.se_bastiaan.torrentstream;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -30,23 +30,21 @@ import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
 import com.frostwire.jlibtorrent.swig.settings_pack;
-import com.github.sv244.torrentstream.exceptions.DirectoryCreationException;
-import com.github.sv244.torrentstream.exceptions.NotInitializedException;
-import com.github.sv244.torrentstream.exceptions.TorrentInfoException;
-import com.github.sv244.torrentstream.listeners.DHTStatsAlertListener;
-import com.github.sv244.torrentstream.listeners.TorrentAddedAlertListener;
-import com.github.sv244.torrentstream.listeners.TorrentListener;
-import com.github.sv244.torrentstream.utils.FileUtils;
-import com.github.sv244.torrentstream.utils.ThreadUtils;
+import com.github.se_bastiaan.torrentstream.exceptions.DirectoryModifyException;
+import com.github.se_bastiaan.torrentstream.exceptions.NotInitializedException;
+import com.github.se_bastiaan.torrentstream.exceptions.TorrentInfoException;
+import com.github.se_bastiaan.torrentstream.listeners.DHTStatsAlertListener;
+import com.github.se_bastiaan.torrentstream.listeners.TorrentAddedAlertListener;
+import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
+import com.github.se_bastiaan.torrentstream.utils.FileUtils;
+import com.github.se_bastiaan.torrentstream.utils.ThreadUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,64 +52,64 @@ import java.util.List;
 public class TorrentStream {
 
     private static final String LIBTORRENT_THREAD_NAME = "TORRENTSTREAM_LIBTORRENT", STREAMING_THREAD_NAME = "TORRENTSTREAMER_STREAMING";
-    private static TorrentStream INSTANCE;
+    private static TorrentStream sThis;
 
-    private Session mTorrentSession;
-    private DHT mDHT;
-    private Boolean mInitialised = false, mIsStreaming = false, mIsCancelled = false;
-    private TorrentOptions mTorrentOptions;
+    private Session torrentSession;
+    private DHT dht;
+    private Boolean initialised = false, isStreaming = false, isCanceled = false;
+    private TorrentOptions torrentOptions;
 
-    private Torrent mCurrentTorrent;
-    private String mCurrentTorrentUrl;
-    private Integer mDhtNodes = 0;
+    private Torrent currentTorrent;
+    private String currentTorrentUrl;
+    private Integer dhtNodes = 0;
 
-    private List<TorrentListener> mListener = new ArrayList<>();
+    private List<TorrentListener> listeners = new ArrayList<>();
 
-    private HandlerThread mLibTorrentThread, mStreamingThread;
-    private Handler mLibTorrentHandler, mStreamingHandler;
+    private HandlerThread libTorrentThread, streamingThread;
+    private Handler libTorrentHandler, streamingHandler;
 
     private TorrentStream(TorrentOptions options) {
-        mTorrentOptions = options;
+        torrentOptions = options;
         initialise();
     }
 
     public static TorrentStream init(TorrentOptions options) {
-        INSTANCE = new TorrentStream(options);
-        return INSTANCE;
+        sThis = new TorrentStream(options);
+        return sThis;
     }
 
     public static TorrentStream getInstance() throws NotInitializedException {
-        if(INSTANCE == null)
+        if (sThis == null)
             throw new NotInitializedException();
 
-        return INSTANCE;
+        return sThis;
     }
 
     private void initialise() {
-        if (mLibTorrentThread != null && mTorrentSession != null) {
+        if (libTorrentThread != null && torrentSession != null) {
             resumeSession();
         } else {
-            if(mInitialised) {
-                if (mLibTorrentThread != null) {
-                    mLibTorrentThread.interrupt();
+            if (initialised) {
+                if (libTorrentThread != null) {
+                    libTorrentThread.interrupt();
                 }
             }
 
-            mLibTorrentThread = new HandlerThread(LIBTORRENT_THREAD_NAME);
-            mLibTorrentThread.start();
-            mLibTorrentHandler = new Handler(mLibTorrentThread.getLooper());
-            mLibTorrentHandler.post(new Runnable() {
+            libTorrentThread = new HandlerThread(LIBTORRENT_THREAD_NAME);
+            libTorrentThread.start();
+            libTorrentHandler = new Handler(libTorrentThread.getLooper());
+            libTorrentHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mTorrentSession = new Session();
-                    setOptions(mTorrentOptions);
+                    torrentSession = new Session();
+                    setOptions(torrentOptions);
 
-                    mTorrentSession.addListener(mDhtStatsAlertListener);
+                    torrentSession.addListener(dhtStatsAlertListener);
 
-                    mDHT = new DHT(mTorrentSession);
-                    mDHT.start();
+                    dht = new DHT(torrentSession);
+                    dht.start();
 
-                    mInitialised = true;
+                    initialised = true;
                 }
             });
         }
@@ -121,25 +119,25 @@ public class TorrentStream {
      * Resume TorrentSession
      */
     public void resumeSession() {
-        if (mLibTorrentThread != null && mTorrentSession != null) {
-            mLibTorrentHandler.removeCallbacksAndMessages(null);
+        if (libTorrentThread != null && torrentSession != null) {
+            libTorrentHandler.removeCallbacksAndMessages(null);
 
             //resume torrent session if needed
-            if (mTorrentSession.isPaused()) {
-                mLibTorrentHandler.post(new Runnable() {
+            if (torrentSession.isPaused()) {
+                libTorrentHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mTorrentSession.resume();
+                        torrentSession.resume();
                     }
                 });
             }
 
             //start DHT if needed
-            if (mDHT != null && !mDHT.isRunning()) {
-                mLibTorrentHandler.post(new Runnable() {
+            if (dht != null && !dht.isRunning()) {
+                libTorrentHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mDHT.start();
+                        dht.start();
                     }
                 });
             }
@@ -150,33 +148,34 @@ public class TorrentStream {
      * Pause TorrentSession
      */
     public void pauseSession() {
-        if(!mIsStreaming)
-            mLibTorrentHandler.post(new Runnable() {
+        if (!isStreaming)
+            libTorrentHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mTorrentSession.pause();
+                    torrentSession.pause();
                 }
             });
     }
 
     /**
      * Get torrent metadata, either by downloading the .torrent or fetching the magnet
+     *
      * @param torrentUrl {@link String} URL to .torrent or magnet link
      * @return {@link TorrentInfo}
      */
-    private TorrentInfo getTorrentInfo(String torrentUrl) {
+    private TorrentInfo getTorrentInfo(String torrentUrl) throws TorrentInfoException {
         if (torrentUrl.startsWith("magnet")) {
-            Downloader d = new Downloader(mTorrentSession);
+            Downloader d = new Downloader(torrentSession);
 
             byte[] data = d.fetchMagnet(torrentUrl, 30000);
-            if(data != null)
+            if (data != null)
                 try {
                     return TorrentInfo.bdecode(data);
                 } catch (IllegalArgumentException e) {
-                    // Eat exception
+                    throw new TorrentInfoException();
                 }
 
-        } else if(torrentUrl.startsWith("http") || torrentUrl.startsWith("https")){
+        } else if (torrentUrl.startsWith("http") || torrentUrl.startsWith("https")) {
             try {
                 URL url = new URL(torrentUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -189,24 +188,20 @@ public class TorrentStream {
 
                 byte[] responseByteArray = new byte[0];
 
-                if(connection.getResponseCode() == 200) {
+                if (connection.getResponseCode() == 200) {
                     responseByteArray = getBytesFromInputStream(inputStream);
                 }
 
                 inputStream.close();
                 connection.disconnect();
 
-                if(responseByteArray.length > 0) {
+                if (responseByteArray.length > 0) {
                     return TorrentInfo.bdecode(responseByteArray);
                 }
-            } catch (MalformedURLException e) {
-                // Eat exception
-            } catch (IOException e) {
-                // Eat exception
-            } catch (IllegalArgumentException e) {
-                // Eat exception
+            } catch (IOException | IllegalArgumentException e) {
+                throw new TorrentInfoException();
             }
-        } else if(torrentUrl.startsWith("file")) {
+        } else if (torrentUrl.startsWith("file")) {
             Uri path = Uri.parse(torrentUrl);
             File file = new File(path.getPath());
 
@@ -215,17 +210,14 @@ public class TorrentStream {
                 byte[] responseByteArray = getBytesFromInputStream(fileInputStream);
                 fileInputStream.close();
 
-                if(responseByteArray.length > 0) {
+                if (responseByteArray.length > 0) {
                     return TorrentInfo.bdecode(responseByteArray);
                 }
-            } catch (FileNotFoundException e) {
-                // Eat exception
-            } catch (IOException e) {
-                // Eat exception
-            } catch (IllegalArgumentException e) {
-                // Eat exception
+            } catch (IOException | IllegalArgumentException e) {
+                throw new TorrentInfoException();
             }
         }
+
         return null;
     }
 
@@ -245,48 +237,61 @@ public class TorrentStream {
 
     /**
      * Start stream download for specified torrent
+     *
      * @param torrentUrl {@link String} .torrent or magnet link
      */
     public void startStream(final String torrentUrl) {
-        if(!mInitialised)
+        if (!initialised)
             initialise();
 
-        if (mLibTorrentHandler == null || mIsStreaming) return;
+        if (libTorrentHandler == null || isStreaming) return;
 
-        mIsCancelled = false;
+        isCanceled = false;
 
-        mStreamingThread = new HandlerThread(STREAMING_THREAD_NAME);
-        mStreamingThread.start();
-        mStreamingHandler = new Handler(mStreamingThread.getLooper());
+        streamingThread = new HandlerThread(STREAMING_THREAD_NAME);
+        streamingThread.start();
+        streamingHandler = new Handler(streamingThread.getLooper());
 
-        mStreamingHandler.post(new Runnable() {
+        streamingHandler.post(new Runnable() {
             @Override
             public void run() {
-                mIsStreaming = true;
-                mCurrentTorrentUrl = torrentUrl;
+                isStreaming = true;
+                currentTorrentUrl = torrentUrl;
 
-                File saveDirectory = new File(mTorrentOptions.mSaveLocation);
+                File saveDirectory = new File(torrentOptions.saveLocation);
                 if (!saveDirectory.isDirectory()) {
                     if (!saveDirectory.mkdirs()) {
-                        for (final TorrentListener listener : mListener) {
+                        for (final TorrentListener listener : listeners) {
                             ThreadUtils.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    listener.onStreamError(null, new DirectoryCreationException());
+                                    listener.onStreamError(null, new DirectoryModifyException());
                                 }
                             });
                         }
-                        mIsStreaming = false;
+                        isStreaming = false;
                         return;
                     }
                 }
 
-                mTorrentSession.removeListener(mTorrentAddedAlertListener);
-                TorrentInfo torrentInfo = getTorrentInfo(torrentUrl);
-                mTorrentSession.addListener(mTorrentAddedAlertListener);
+                torrentSession.removeListener(torrentAddedAlertListener);
+                TorrentInfo torrentInfo = null;
+                try {
+                    torrentInfo = getTorrentInfo(torrentUrl);
+                } catch (final TorrentInfoException e) {
+                    for (final TorrentListener listener : listeners) {
+                        ThreadUtils.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onStreamError(null, e);
+                            }
+                        });
+                    }
+                }
+                torrentSession.addListener(torrentAddedAlertListener);
 
                 if (torrentInfo == null) {
-                    for (final TorrentListener listener : mListener) {
+                    for (final TorrentListener listener : listeners) {
                         ThreadUtils.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -294,7 +299,7 @@ public class TorrentStream {
                             }
                         });
                     }
-                    mIsStreaming = false;
+                    isStreaming = false;
                     return;
                 }
 
@@ -303,11 +308,11 @@ public class TorrentStream {
                     priorities[i] = Priority.IGNORE;
                 }
 
-                if (!mCurrentTorrentUrl.equals(torrentUrl) || mIsCancelled) {
+                if (!currentTorrentUrl.equals(torrentUrl) || isCanceled) {
                     return;
                 }
 
-                mTorrentSession.asyncAddTorrent(torrentInfo, saveDirectory, priorities, null);
+                torrentSession.asyncAddTorrent(torrentInfo, saveDirectory, priorities, null);
             }
         });
     }
@@ -317,32 +322,39 @@ public class TorrentStream {
      */
     public void stopStream() {
         //remove all callbacks from handler
-        if(mLibTorrentHandler != null)
-            mLibTorrentHandler.removeCallbacksAndMessages(null);
-        if(mStreamingHandler != null)
-            mStreamingHandler.removeCallbacksAndMessages(null);
+        if (libTorrentHandler != null)
+            libTorrentHandler.removeCallbacksAndMessages(null);
+        if (streamingHandler != null)
+            streamingHandler.removeCallbacksAndMessages(null);
 
-        mIsCancelled = true;
-        mIsStreaming = false;
-        if (mCurrentTorrent != null) {
-            final File saveLocation = mCurrentTorrent.getSaveLocation();
+        isCanceled = true;
+        isStreaming = false;
+        if (currentTorrent != null) {
+            final File saveLocation = currentTorrent.getSaveLocation();
 
-            mCurrentTorrent.pause();
-            mTorrentSession.removeListener(mCurrentTorrent);
-            mTorrentSession.removeTorrent(mCurrentTorrent.getTorrentHandle());
-            mCurrentTorrent = null;
+            currentTorrent.pause();
+            torrentSession.removeListener(currentTorrent);
+            torrentSession.removeTorrent(currentTorrent.getTorrentHandle());
+            currentTorrent = null;
 
-            if (mTorrentOptions.mRemoveFiles) {
+            if (torrentOptions.removeFiles) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         int tries = 0;
-                        while(!FileUtils.recursiveDelete(saveLocation) && tries < 5) {
+                        while (!FileUtils.recursiveDelete(saveLocation) && tries < 5) {
                             tries++;
                             try {
                                 Thread.sleep(1000); // If deleted failed then something is still using the file, wait and then retry
                             } catch (InterruptedException e) {
-                                // Eat exception
+                                for (final TorrentListener listener : listeners) {
+                                    ThreadUtils.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            listener.onStreamError(currentTorrent, new DirectoryModifyException());
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
@@ -350,10 +362,10 @@ public class TorrentStream {
             }
         }
 
-        if(mStreamingThread != null)
-            mStreamingThread.interrupt();
+        if (streamingThread != null)
+            streamingThread.interrupt();
 
-        for (final TorrentListener listener : mListener) {
+        for (final TorrentListener listener : listeners) {
             ThreadUtils.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -364,81 +376,85 @@ public class TorrentStream {
     }
 
     public TorrentOptions getOptions() {
-        return mTorrentOptions;
+        return torrentOptions;
     }
 
     public void setOptions(TorrentOptions options) {
-        mTorrentOptions = options;
+        torrentOptions = options;
 
         SettingsPack settingsPack = new SettingsPack();
-        settingsPack.setAnonymousMode(mTorrentOptions.mAnonymousMode);
+        settingsPack.setAnonymousMode(torrentOptions.anonymousMode);
 
-        settingsPack.setConnectionsLimit(mTorrentOptions.mMaxConnections);
-        settingsPack.setDownloadRateLimit(mTorrentOptions.mMaxDownloadSpeed);
-        settingsPack.setUploadRateLimit(mTorrentOptions.mMaxUploadSpeed);
-        settingsPack.setInteger(settings_pack.int_types.active_dht_limit.swigValue(), mTorrentOptions.mMaxDht);
+        settingsPack.setConnectionsLimit(torrentOptions.maxConnections);
+        settingsPack.setDownloadRateLimit(torrentOptions.maxDownloadSpeed);
+        settingsPack.setUploadRateLimit(torrentOptions.maxUploadSpeed);
+        settingsPack.setInteger(settings_pack.int_types.active_dht_limit.swigValue(), torrentOptions.maxDht);
 
-        if(mTorrentOptions.mListeningPort != -1) {
-            String if_string = String.format("%s:%d", "0.0.0.0", mTorrentOptions.mListeningPort);
-            settingsPack.setString(settings_pack.string_types.listen_interfaces.swigValue(), if_string);
+        if (torrentOptions.listeningPort != -1) {
+            String ifStr = String.format("%s:%d", "0.0.0.0", torrentOptions.listeningPort);
+            settingsPack.setString(settings_pack.string_types.listen_interfaces.swigValue(), ifStr);
         }
 
-        if(mTorrentOptions.mProxyHost != null)
-            settingsPack.setString(settings_pack.string_types.proxy_hostname.swigValue(), mTorrentOptions.mProxyHost);
-        if(mTorrentOptions.mProxyUsername != null)
-            settingsPack.setString(settings_pack.string_types.proxy_username.swigValue(), mTorrentOptions.mProxyUsername);
-        if(mTorrentOptions.mProxyPassword != null)
-            settingsPack.setString(settings_pack.string_types.proxy_password.swigValue(), mTorrentOptions.mProxyPassword);
+        if (torrentOptions.proxyHost != null) {
+            settingsPack.setString(settings_pack.string_types.proxy_hostname.swigValue(), torrentOptions.proxyHost);
+            if (torrentOptions.proxyUsername != null) {
+                settingsPack.setString(settings_pack.string_types.proxy_username.swigValue(), torrentOptions.proxyUsername);
+                if (torrentOptions.proxyPassword != null) {
+                    settingsPack.setString(settings_pack.string_types.proxy_password.swigValue(), torrentOptions.proxyPassword);
+                }
+            }
+        }
 
-        if(mTorrentOptions.mPeerFingerprint != null)
-            settingsPack.setString(settings_pack.string_types.peer_fingerprint.swigValue(), mTorrentOptions.mPeerFingerprint);
+        if (torrentOptions.peerFingerprint != null) {
+            settingsPack.setString(settings_pack.string_types.peer_fingerprint.swigValue(), torrentOptions.peerFingerprint);
+        }
 
-        mTorrentSession.applySettings(settingsPack);
+        torrentSession.applySettings(settingsPack);
     }
 
     public boolean isStreaming() {
-        return mIsStreaming;
+        return isStreaming;
     }
 
     public String getCurrentTorrentUrl() {
-        return mCurrentTorrentUrl;
+        return currentTorrentUrl;
     }
 
     public Integer getTotalDhtNodes() {
-        return mDhtNodes;
+        return dhtNodes;
     }
 
     public void addListener(TorrentListener listener) {
-        if(listener != null)
-            mListener.add(listener);
+        if (listener != null)
+            listeners.add(listener);
     }
 
     public void removeListener(TorrentListener listener) {
-        if(listener != null)
-            mListener.remove(listener);
+        if (listener != null)
+            listeners.remove(listener);
     }
 
-    private DHTStatsAlertListener mDhtStatsAlertListener = new DHTStatsAlertListener() {
+    private DHTStatsAlertListener dhtStatsAlertListener = new DHTStatsAlertListener() {
         @Override
         public void stats(int totalDhtNodes) {
-            mDhtNodes = totalDhtNodes;
+            dhtNodes = totalDhtNodes;
         }
     };
 
-    private TorrentAddedAlertListener mTorrentAddedAlertListener = new TorrentAddedAlertListener() {
+    private TorrentAddedAlertListener torrentAddedAlertListener = new TorrentAddedAlertListener() {
         @Override
         public void torrentAdded(TorrentAddedAlert alert) {
             InternalTorrentListener listener = new InternalTorrentListener();
-            TorrentHandle th = mTorrentSession.findTorrent((alert).getHandle().getInfoHash());
-            mCurrentTorrent = new Torrent(th, listener, mTorrentOptions.mPrepareSize);
-            mTorrentSession.addListener(mCurrentTorrent);
+            TorrentHandle th = torrentSession.findTorrent((alert).getHandle().getInfoHash());
+            currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize);
+            torrentSession.addListener(currentTorrent);
         }
     };
 
     protected class InternalTorrentListener implements TorrentListener {
 
         public void onStreamStarted(final Torrent torrent) {
-            for (final TorrentListener listener : mListener) {
+            for (final TorrentListener listener : listeners) {
                 ThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -449,7 +465,7 @@ public class TorrentStream {
         }
 
         public void onStreamError(final Torrent torrent, final Exception e) {
-            for (final TorrentListener listener : mListener) {
+            for (final TorrentListener listener : listeners) {
                 ThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -460,7 +476,7 @@ public class TorrentStream {
         }
 
         public void onStreamReady(final Torrent torrent) {
-            for (final TorrentListener listener : mListener) {
+            for (final TorrentListener listener : listeners) {
                 ThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -471,7 +487,7 @@ public class TorrentStream {
         }
 
         public void onStreamProgress(final Torrent torrent, final StreamStatus status) {
-            for (final TorrentListener listener : mListener) {
+            for (final TorrentListener listener : listeners) {
                 ThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -488,7 +504,7 @@ public class TorrentStream {
 
         @Override
         public void onStreamPrepared(final Torrent torrent) {
-            for (final TorrentListener listener : mListener) {
+            for (final TorrentListener listener : listeners) {
                 ThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

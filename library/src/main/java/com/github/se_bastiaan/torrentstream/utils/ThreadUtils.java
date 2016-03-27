@@ -17,27 +17,22 @@
  *
  */
 
-package com.github.sv244.torrentstream.listeners;
+package com.github.se_bastiaan.torrentstream.utils;
 
-import com.frostwire.jlibtorrent.AlertListener;
-import com.frostwire.jlibtorrent.alerts.Alert;
-import com.frostwire.jlibtorrent.alerts.AlertType;
-import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
+import android.os.Handler;
+import android.os.Looper;
 
-public abstract class TorrentAddedAlertListener implements AlertListener {
-    @Override
-    public int[] types() {
-        return new int[] { AlertType.TORRENT_ADDED.getSwig() };
+public class ThreadUtils {
+
+    /**
+     * Execute the given {@link Runnable} on the ui thread.
+     *
+     * @param runnable The runnable to execute.
+     */
+    public static void runOnUiThread(Runnable runnable) {
+        Thread uiThread = Looper.getMainLooper().getThread();
+        if (Thread.currentThread() != uiThread) new Handler(Looper.getMainLooper()).post(runnable);
+        else runnable.run();
     }
 
-    @Override
-    public void alert(Alert<?> alert) {
-        switch (alert.getType()) {
-            case TORRENT_ADDED:
-                torrentAdded((TorrentAddedAlert) alert);
-                break;
-        }
-    }
-
-    public abstract void torrentAdded(TorrentAddedAlert alert);
 }

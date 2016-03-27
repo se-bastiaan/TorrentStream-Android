@@ -15,21 +15,12 @@
  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.sv244.torrentstream.listeners;
+package com.github.se_bastiaan.torrentstream.exceptions;
 
-import com.github.sv244.torrentstream.StreamStatus;
-import com.github.sv244.torrentstream.Torrent;
+public class TorrentInfoException extends Exception {
 
-public interface TorrentListener {
-    void onStreamPrepared(Torrent torrent);
+    public TorrentInfoException() {
+        super("No torrent info could be found or read");
+    }
 
-    void onStreamStarted(Torrent torrent);
-
-    void onStreamError(Torrent torrent, Exception e);
-
-    void onStreamReady(Torrent torrent);
-
-    void onStreamProgress(Torrent torrent, StreamStatus status);
-
-    void onStreamStopped();
 }

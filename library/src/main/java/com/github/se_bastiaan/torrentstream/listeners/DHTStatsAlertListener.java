@@ -17,7 +17,7 @@
  *
  */
 
-package com.github.sv244.torrentstream.listeners;
+package com.github.se_bastiaan.torrentstream.listeners;
 
 import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.DHTRoutingBucket;
@@ -28,7 +28,7 @@ import com.frostwire.jlibtorrent.alerts.DhtStatsAlert;
 public abstract class DHTStatsAlertListener implements AlertListener {
     @Override
     public int[] types() {
-        return new int[] { AlertType.DHT_STATS.getSwig() };
+        return new int[]{AlertType.DHT_STATS.getSwig()};
     }
 
     public void alert(Alert<?> alert) {
@@ -45,7 +45,7 @@ public abstract class DHTStatsAlertListener implements AlertListener {
 
         int totalNodes = 0;
         if (routingTable != null && routingTable.length > 0) {
-            for (int i=0; i < routingTable.length; i++) {
+            for (int i = 0; i < routingTable.length; i++) {
                 DHTRoutingBucket bucket = routingTable[i];
                 totalNodes += bucket.numNodes();
             }

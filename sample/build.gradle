@@ -21,10 +21,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.github.torrentstreamer.sample"
+        applicationId "com.github.se_bastiaan.torrentstreamer.sample"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
