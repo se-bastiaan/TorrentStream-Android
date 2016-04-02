@@ -1,5 +1,4 @@
-TorrentStream-Android [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.se_bastiaan/torrentstream-android/badge.svg)](https://maven-badges.herokuapp
-.com/maven-central/com.github.se_bastiaan/torrentstream-android)
+TorrentStream-Android
 ======
 
 A torrent streamer library for Android based on [jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).

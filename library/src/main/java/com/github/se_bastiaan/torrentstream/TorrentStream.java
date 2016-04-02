@@ -133,7 +133,7 @@ public class TorrentStream {
             }
 
             //start DHT if needed
-            if (dht != null && !dht.isRunning()) {
+            if (dht != null && !dht.running()) {
                 libTorrentHandler.post(new Runnable() {
                     @Override
                     public void run() {
