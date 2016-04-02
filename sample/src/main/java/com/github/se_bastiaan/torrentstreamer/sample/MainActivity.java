@@ -17,7 +17,7 @@
  *
  */
 
-package com.github.se_bastiaan.torrenstreamer.sample;
+package com.github.se_bastiaan.torrentstreamer.sample;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -39,8 +39,6 @@ import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import github.se_bastiaan.torrentstreamer.sample.R;
-
 @SuppressLint("SetTextI18n")
 public class MainActivity extends AppCompatActivity implements TorrentListener {
 
@@ -48,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
     private ProgressBar progressBar;
     private TorrentStream torrentStream;
 
-    private String mStreamUrl = "magnet:?xt=urn:btih:D60795899F8488E7E489BA642DEFBCE1B23C9DA0&dn=Kingsman%3A+The+Secret+Service+%282014%29+%5B720p%5D&tr=http%3A%2F%2Ftracker.yify-torrents.com%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Ftracker.publicbt.org%3A80&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337";
+    private String mStreamUrl = "magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
                 button.setText("Start stream");
                 return;
             }
-            //torrentStream.startStream("https://yts.to/torrent/download/D60795899F8488E7E489BA642DEFBCE1B23C9DA0.torrent");
             torrentStream.startStream(mStreamUrl);
             button.setText("Stop stream");
         }
