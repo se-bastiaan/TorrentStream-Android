@@ -21,7 +21,7 @@ Add to your dependencies:
 
 ```groovy
 dependencies {
-    compile "com.github.se_bastiaan:TorrentStream-Android:2.0.0"
+    compile "com.github.se-bastiaan:TorrentStream-Android:2.0.1"
 }
 ```
 
