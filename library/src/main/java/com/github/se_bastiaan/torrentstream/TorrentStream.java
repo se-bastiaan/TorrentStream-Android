@@ -302,7 +302,7 @@ public class TorrentStream {
                     return;
                 }
 
-                Priority[] priorities = new Priority[torrentInfo.getNumPieces()];
+                Priority[] priorities = new Priority[torrentInfo.numPieces()];
                 for (int i = 0; i < priorities.length; i++) {
                     priorities[i] = Priority.IGNORE;
                 }
