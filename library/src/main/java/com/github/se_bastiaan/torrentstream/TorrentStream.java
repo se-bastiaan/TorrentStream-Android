@@ -55,7 +55,7 @@ public class TorrentStream {
 
     private Session torrentSession;
     private DHT dht;
-    private Boolean initialised = false, isStreaming = false, isCanceled = false;
+    private Boolean initialising = false, initialised = false, isStreaming = false, isCanceled = false;
     private TorrentOptions torrentOptions;
 
     private Torrent currentTorrent;
@@ -88,11 +88,14 @@ public class TorrentStream {
         if (libTorrentThread != null && torrentSession != null) {
             resumeSession();
         } else {
-            if (initialised) {
+            if (initialising || initialised) {
                 if (libTorrentThread != null) {
                     libTorrentThread.interrupt();
                 }
             }
+
+            initialising = true;
+            initialised = false;
 
             libTorrentThread = new HandlerThread(LIBTORRENT_THREAD_NAME);
             libTorrentThread.start();
@@ -108,6 +111,7 @@ public class TorrentStream {
                     dht = new DHT(torrentSession);
                     dht.start();
 
+                    initialising = false;
                     initialised = true;
                 }
             });
@@ -240,7 +244,7 @@ public class TorrentStream {
      * @param torrentUrl {@link String} .torrent or magnet link
      */
     public void startStream(final String torrentUrl) {
-        if (!initialised)
+        if (!initialising && !initialised)
             initialise();
 
         if (libTorrentHandler == null || isStreaming) return;
