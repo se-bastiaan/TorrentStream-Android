@@ -47,12 +47,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class TorrentStream {
 
     private static final String LIBTORRENT_THREAD_NAME = "TORRENTSTREAM_LIBTORRENT", STREAMING_THREAD_NAME = "TORRENTSTREAMER_STREAMING";
     private static TorrentStream sThis;
 
+    private CountDownLatch initialisingLatch;
     private Session torrentSession;
     private DHT dht;
     private Boolean initialising = false, initialised = false, isStreaming = false, isCanceled = false;
@@ -96,6 +98,7 @@ public class TorrentStream {
 
             initialising = true;
             initialised = false;
+            initialisingLatch = new CountDownLatch(1);
 
             libTorrentThread = new HandlerThread(LIBTORRENT_THREAD_NAME);
             libTorrentThread.start();
@@ -113,6 +116,7 @@ public class TorrentStream {
 
                     initialising = false;
                     initialised = true;
+                    initialisingLatch.countDown();
                 }
             });
         }
@@ -259,6 +263,17 @@ public class TorrentStream {
             @Override
             public void run() {
                 isStreaming = true;
+
+                if (initialisingLatch != null) {
+                    try {
+                        initialisingLatch.await();
+                        initialisingLatch = null;
+                    } catch (InterruptedException e) {
+                        isStreaming = false;
+                        return;
+                    }
+                }
+
                 currentTorrentUrl = torrentUrl;
 
                 File saveDirectory = new File(torrentOptions.saveLocation);
