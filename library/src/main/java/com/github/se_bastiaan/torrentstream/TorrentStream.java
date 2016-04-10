@@ -47,15 +47,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class TorrentStream {
 
     private static final String LIBTORRENT_THREAD_NAME = "TORRENTSTREAM_LIBTORRENT", STREAMING_THREAD_NAME = "TORRENTSTREAMER_STREAMING";
     private static TorrentStream sThis;
 
+    private CountDownLatch initialisingLatch;
     private Session torrentSession;
     private DHT dht;
-    private Boolean initialised = false, isStreaming = false, isCanceled = false;
+    private Boolean initialising = false, initialised = false, isStreaming = false, isCanceled = false;
     private TorrentOptions torrentOptions;
 
     private Torrent currentTorrent;
@@ -88,11 +90,15 @@ public class TorrentStream {
         if (libTorrentThread != null && torrentSession != null) {
             resumeSession();
         } else {
-            if (initialised) {
+            if (initialising || initialised) {
                 if (libTorrentThread != null) {
                     libTorrentThread.interrupt();
                 }
             }
+
+            initialising = true;
+            initialised = false;
+            initialisingLatch = new CountDownLatch(1);
 
             libTorrentThread = new HandlerThread(LIBTORRENT_THREAD_NAME);
             libTorrentThread.start();
@@ -108,7 +114,9 @@ public class TorrentStream {
                     dht = new DHT(torrentSession);
                     dht.start();
 
+                    initialising = false;
                     initialised = true;
+                    initialisingLatch.countDown();
                 }
             });
         }
@@ -240,7 +248,7 @@ public class TorrentStream {
      * @param torrentUrl {@link String} .torrent or magnet link
      */
     public void startStream(final String torrentUrl) {
-        if (!initialised)
+        if (!initialising && !initialised)
             initialise();
 
         if (libTorrentHandler == null || isStreaming) return;
@@ -255,6 +263,17 @@ public class TorrentStream {
             @Override
             public void run() {
                 isStreaming = true;
+
+                if (initialisingLatch != null) {
+                    try {
+                        initialisingLatch.await();
+                        initialisingLatch = null;
+                    } catch (InterruptedException e) {
+                        isStreaming = false;
+                        return;
+                    }
+                }
+
                 currentTorrentUrl = torrentUrl;
 
                 File saveDirectory = new File(torrentOptions.saveLocation);
@@ -302,7 +321,7 @@ public class TorrentStream {
                     return;
                 }
 
-                Priority[] priorities = new Priority[torrentInfo.numPieces()];
+                Priority[] priorities = new Priority[torrentInfo.getNumPieces()];
                 for (int i = 0; i < priorities.length; i++) {
                     priorities[i] = Priority.IGNORE;
                 }
