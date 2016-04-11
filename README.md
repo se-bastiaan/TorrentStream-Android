@@ -1,4 +1,4 @@
-TorrentStream-Android
+TorrentStream-Android [![Release](https://jitpack.io/v/se-bastiaan/TorrentStream-Android.svg)](https://jitpack.io/#se-bastiaan/TorrentStream-Android)
 ======
 
 A torrent streamer library for Android based on [jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
@@ -21,7 +21,7 @@ Add to your dependencies:
 
 ```groovy
 dependencies {
-    compile "com.github.se-bastiaan:TorrentStream-Android:2.0.1"
+    compile "com.github.se-bastiaan:TorrentStream-Android:{$torrentstreamVersion}"
 }
 ```
 
