@@ -28,7 +28,7 @@ import com.frostwire.jlibtorrent.alerts.DhtStatsAlert;
 public abstract class DHTStatsAlertListener implements AlertListener {
     @Override
     public int[] types() {
-        return new int[]{AlertType.DHT_STATS.getSwig()};
+        return new int[]{AlertType.DHT_STATS.swig()};
     }
 
     public void alert(Alert<?> alert) {
