@@ -24,12 +24,12 @@ import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
 public abstract class TorrentAddedAlertListener implements AlertListener {
     @Override
     public int[] types() {
-        return new int[]{AlertType.TORRENT_ADDED.getSwig()};
+        return new int[]{AlertType.TORRENT_ADDED.swig()};
     }
 
     @Override
     public void alert(Alert<?> alert) {
-        switch (alert.getType()) {
+        switch (alert.type()) {
             case TORRENT_ADDED:
                 torrentAdded((TorrentAddedAlert) alert);
                 break;
