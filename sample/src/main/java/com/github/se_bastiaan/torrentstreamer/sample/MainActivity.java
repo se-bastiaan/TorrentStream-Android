@@ -46,11 +46,26 @@ import java.net.URLDecoder;
 @SuppressLint("SetTextI18n")
 public class MainActivity extends AppCompatActivity implements TorrentListener {
 
+    private static final String TORRENT = "Torrent";
     private Button button;
     private ProgressBar progressBar;
     private TorrentStream torrentStream;
 
     private String mStreamUrl = "magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4";
+
+    View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            progressBar.setProgress(0);
+            if(torrentStream.isStreaming()) {
+                torrentStream.stopStream();
+                button.setText("Start stream");
+                return;
+            }
+            torrentStream.startStream(mStreamUrl);
+            button.setText("Stop stream");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,41 +106,27 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
         }
     }
 
-    View.OnClickListener mOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            progressBar.setProgress(0);
-            if(torrentStream.isStreaming()) {
-                torrentStream.stopStream();
-                button.setText("Start stream");
-                return;
-            }
-            torrentStream.startStream(mStreamUrl);
-            button.setText("Stop stream");
-        }
-    };
-
     @Override
     public void onStreamPrepared(Torrent torrent) {
-        Log.d("Torrent", "OnStreamPrepared");
+        Log.d(TORRENT, "OnStreamPrepared");
         torrent.startDownload();
     }
 
     @Override
     public void onStreamStarted(Torrent torrent) {
-        Log.d("Torrent", "onStreamStarted");
+        Log.d(TORRENT, "onStreamStarted");
     }
 
     @Override
     public void onStreamError(Torrent torrent, Exception e) {
-        Log.e("Torrent", "onStreamError", e);
+        Log.e(TORRENT, "onStreamError", e);
         button.setText("Start stream");
     }
 
     @Override
     public void onStreamReady(Torrent torrent) {
         progressBar.setProgress(100);
-        Log.d("Torrent", "onStreamReady: " + torrent.getVideoFile());
+        Log.d(TORRENT, "onStreamReady: " + torrent.getVideoFile());
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(torrent.getVideoFile().toString()));
         intent.setDataAndType(Uri.parse(torrent.getVideoFile().toString()), "video/mp4");
@@ -135,13 +136,13 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
     @Override
     public void onStreamProgress(Torrent torrent, StreamStatus status) {
         if(status.bufferProgress <= 100 && progressBar.getProgress() < 100 && progressBar.getProgress() != status.bufferProgress) {
-            Log.d("Torrent", "Progress: " + status.bufferProgress);
+            Log.d(TORRENT, "Progress: " + status.bufferProgress);
             progressBar.setProgress(status.bufferProgress);
         }
     }
 
     @Override
     public void onStreamStopped() {
-        Log.d("Torrent", "onStreamStopped");
+        Log.d(TORRENT, "onStreamStopped");
     }
 }

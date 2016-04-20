@@ -64,10 +64,27 @@ public class TorrentStream {
     private String currentTorrentUrl;
     private Integer dhtNodes = 0;
 
-    private List<TorrentListener> listeners = new ArrayList<>();
+    private final List<TorrentListener> listeners = new ArrayList<>();
 
     private HandlerThread libTorrentThread, streamingThread;
     private Handler libTorrentHandler, streamingHandler;
+
+    private final DHTStatsAlertListener dhtStatsAlertListener = new DHTStatsAlertListener() {
+        @Override
+        public void stats(int totalDhtNodes) {
+            dhtNodes = totalDhtNodes;
+        }
+    };
+
+    private final TorrentAddedAlertListener torrentAddedAlertListener = new TorrentAddedAlertListener() {
+        @Override
+        public void torrentAdded(TorrentAddedAlert alert) {
+            InternalTorrentListener listener = new InternalTorrentListener();
+            TorrentHandle th = torrentSession.findTorrent((alert).getHandle().getInfoHash());
+            currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize);
+            torrentSession.addListener(currentTorrent);
+        }
+    };
 
     private TorrentStream(TorrentOptions options) {
         torrentOptions = options;
@@ -451,23 +468,6 @@ public class TorrentStream {
         if (listener != null)
             listeners.remove(listener);
     }
-
-    private DHTStatsAlertListener dhtStatsAlertListener = new DHTStatsAlertListener() {
-        @Override
-        public void stats(int totalDhtNodes) {
-            dhtNodes = totalDhtNodes;
-        }
-    };
-
-    private TorrentAddedAlertListener torrentAddedAlertListener = new TorrentAddedAlertListener() {
-        @Override
-        public void torrentAdded(TorrentAddedAlert alert) {
-            InternalTorrentListener listener = new InternalTorrentListener();
-            TorrentHandle th = torrentSession.findTorrent((alert).getHandle().getInfoHash());
-            currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize);
-            torrentSession.addListener(currentTorrent);
-        }
-    };
 
     protected class InternalTorrentListener implements TorrentListener {
 
