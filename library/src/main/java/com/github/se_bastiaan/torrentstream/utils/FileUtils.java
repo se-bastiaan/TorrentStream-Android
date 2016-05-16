@@ -21,7 +21,11 @@ package com.github.se_bastiaan.torrentstream.utils;
 
 import java.io.File;
 
-public class FileUtils {
+public final class FileUtils {
+
+    private FileUtils() throws InstantiationException {
+        throw new InstantiationException("This class is not created for instantiation");
+    }
 
     /**
      * Delete every item below the File location
