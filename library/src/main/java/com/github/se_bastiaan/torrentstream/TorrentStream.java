@@ -20,7 +20,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.frostwire.jlibtorrent.DHT;
+import com.frostwire.jlibtorrent.Dht;
 import com.frostwire.jlibtorrent.Downloader;
 import com.frostwire.jlibtorrent.Priority;
 import com.frostwire.jlibtorrent.Session;
@@ -56,7 +56,7 @@ public class TorrentStream {
 
     private CountDownLatch initialisingLatch;
     private Session torrentSession;
-    private DHT dht;
+    private Dht dht;
     private Boolean initialising = false, initialised = false, isStreaming = false, isCanceled = false;
     private TorrentOptions torrentOptions;
 
@@ -80,7 +80,7 @@ public class TorrentStream {
         @Override
         public void torrentAdded(TorrentAddedAlert alert) {
             InternalTorrentListener listener = new InternalTorrentListener();
-            TorrentHandle th = torrentSession.findTorrent((alert).getHandle().getInfoHash());
+            TorrentHandle th = torrentSession.findTorrent((alert).handle().getInfoHash());
             currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize);
             torrentSession.addListener(currentTorrent);
         }
@@ -128,7 +128,7 @@ public class TorrentStream {
 
                     torrentSession.addListener(dhtStatsAlertListener);
 
-                    dht = new DHT(torrentSession);
+                    dht = new Dht(torrentSession);
                     dht.start();
 
                     initialising = false;

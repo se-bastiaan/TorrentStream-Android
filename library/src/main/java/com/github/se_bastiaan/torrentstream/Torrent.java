@@ -197,7 +197,7 @@ public class Torrent implements AlertListener {
             lastPieceIndex = piecePriorities.length - 1;
         }
         int pieceCount = lastPieceIndex - firstPieceIndex + 1;
-        int pieceLength = torrentHandle.getTorrentInfo().getPieceLength();
+        int pieceLength = torrentHandle.getTorrentInfo().pieceLength();
         int activePieceCount;
         if (pieceLength > 0) {
             activePieceCount = (int) (prepareSize / pieceLength);
@@ -271,7 +271,7 @@ public class Torrent implements AlertListener {
         TorrentInfo torrentInfo = torrentHandle.getTorrentInfo();
         TorrentStatus status = torrentHandle.getStatus();
 
-        double blockCount = indices.size() * torrentInfo.getPieceLength() / status.getBlockSize();
+        double blockCount = indices.size() * torrentInfo.pieceLength() / status.getBlockSize();
 
         progressStep = 100 / blockCount;
 
