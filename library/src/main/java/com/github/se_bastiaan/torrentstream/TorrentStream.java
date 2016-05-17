@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class TorrentStream {
+public final class TorrentStream {
 
     private static final String LIBTORRENT_THREAD_NAME = "TORRENTSTREAM_LIBTORRENT", STREAMING_THREAD_NAME = "TORRENTSTREAMER_STREAMING";
     private static TorrentStream sThis;
@@ -107,10 +107,8 @@ public class TorrentStream {
         if (libTorrentThread != null && torrentSession != null) {
             resumeSession();
         } else {
-            if (initialising || initialised) {
-                if (libTorrentThread != null) {
-                    libTorrentThread.interrupt();
-                }
+            if ((initialising || initialised) && libTorrentThread != null) {
+                libTorrentThread.interrupt();
             }
 
             initialising = true;
@@ -294,19 +292,17 @@ public class TorrentStream {
                 currentTorrentUrl = torrentUrl;
 
                 File saveDirectory = new File(torrentOptions.saveLocation);
-                if (!saveDirectory.isDirectory()) {
-                    if (!saveDirectory.mkdirs()) {
-                        for (final TorrentListener listener : listeners) {
-                            ThreadUtils.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    listener.onStreamError(null, new DirectoryModifyException());
-                                }
-                            });
-                        }
-                        isStreaming = false;
-                        return;
+                if (!saveDirectory.isDirectory() && !saveDirectory.mkdirs()) {
+                    for (final TorrentListener listener : listeners) {
+                        ThreadUtils.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onStreamError(null, new DirectoryModifyException());
+                            }
+                        });
                     }
+                    isStreaming = false;
+                    return;
                 }
 
                 torrentSession.removeListener(torrentAddedAlertListener);
