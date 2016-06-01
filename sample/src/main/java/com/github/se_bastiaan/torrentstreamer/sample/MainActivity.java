@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
 
     private String streamUrl = "magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4";
 
-    View.OnClickListener mOnClickListener = new View.OnClickListener() {
+    View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             progressBar.setProgress(0);
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
                 button.setText("Start stream");
                 return;
             }
-            torrentStream.startStream(mStreamUrl);
+            torrentStream.startStream(streamUrl);
             button.setText("Stop stream");
         }
     };
@@ -145,17 +145,4 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
         Log.d(TORRENT, "onStreamStopped");
     }
 
-    View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            progressBar.setProgress(0);
-            if(torrentStream.isStreaming()) {
-                torrentStream.stopStream();
-                button.setText("Start stream");
-                return;
-            }
-            torrentStream.startStream(streamUrl);
-            button.setText("Stop stream");
-        }
-    };
 }
