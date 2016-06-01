@@ -178,25 +178,25 @@ public class Torrent implements AlertListener {
         this.selectedFileIndex = selectedFileIndex;
 
         Priority[] piecePriorities = torrentHandle.getPiecePriorities();
-        int firstPieceIndex = -1;
-        int lastPieceIndex = -1;
+        int firstPieceIndexLocal = -1;
+        int lastPieceIndexLocal = -1;
         for (int i = 0; i < piecePriorities.length; i++) {
             if (piecePriorities[i] != Priority.IGNORE) {
-                if (firstPieceIndex == -1) {
-                    firstPieceIndex = i;
+                if (firstPieceIndexLocal == -1) {
+                    firstPieceIndexLocal = i;
                 }
                 piecePriorities[i] = Priority.IGNORE;
             } else {
-                if (firstPieceIndex != -1 && lastPieceIndex == -1) {
-                    lastPieceIndex = i - 1;
+                if (firstPieceIndexLocal != -1 && lastPieceIndexLocal == -1) {
+                    lastPieceIndexLocal = i - 1;
                 }
             }
         }
 
-        if (lastPieceIndex == -1) {
-            lastPieceIndex = piecePriorities.length - 1;
+        if (lastPieceIndexLocal == -1) {
+            lastPieceIndexLocal = piecePriorities.length - 1;
         }
-        int pieceCount = lastPieceIndex - firstPieceIndex + 1;
+        int pieceCount = lastPieceIndexLocal - firstPieceIndexLocal + 1;
         int pieceLength = torrentHandle.getTorrentInfo().pieceLength();
         int activePieceCount;
         if (pieceLength > 0) {
@@ -214,8 +214,8 @@ public class Torrent implements AlertListener {
             activePieceCount = pieceCount / 2;
         }
 
-        this.firstPieceIndex = firstPieceIndex;
-        this.lastPieceIndex = lastPieceIndex;
+        this.firstPieceIndex = firstPieceIndexLocal;
+        this.lastPieceIndex = lastPieceIndexLocal;
         piecesToPrepare = activePieceCount;
     }
 
@@ -386,6 +386,8 @@ public class Torrent implements AlertListener {
                 break;
             case BLOCK_FINISHED:
                 blockFinished((BlockFinishedAlert) alert);
+                break;
+            default:
                 break;
         }
     }
