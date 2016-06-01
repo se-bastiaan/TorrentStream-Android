@@ -20,10 +20,11 @@
 package com.github.se_bastiaan.torrentstream.listeners;
 
 import com.frostwire.jlibtorrent.AlertListener;
-import com.frostwire.jlibtorrent.DHTRoutingBucket;
+import com.frostwire.jlibtorrent.DhtRoutingBucket;
 import com.frostwire.jlibtorrent.alerts.Alert;
 import com.frostwire.jlibtorrent.alerts.AlertType;
 import com.frostwire.jlibtorrent.alerts.DhtStatsAlert;
+import java.util.ArrayList;
 
 public abstract class DHTStatsAlertListener implements AlertListener {
     @Override
@@ -41,12 +42,11 @@ public abstract class DHTStatsAlertListener implements AlertListener {
     public abstract void stats(int totalDhtNodes);
 
     private int countTotalDHTNodes(DhtStatsAlert alert) {
-        final DHTRoutingBucket[] routingTable = alert.routingTable();
+        final ArrayList<DhtRoutingBucket> routingTable = alert.routingTable();
 
         int totalNodes = 0;
-        if (routingTable != null && routingTable.length > 0) {
-            for (int i = 0; i < routingTable.length; i++) {
-                DHTRoutingBucket bucket = routingTable[i];
+        if (routingTable != null) {
+            for (DhtRoutingBucket bucket : routingTable) {
                 totalNodes += bucket.numNodes();
             }
         }

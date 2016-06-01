@@ -18,7 +18,7 @@ package com.github.se_bastiaan.torrentstream;
 
 import java.io.File;
 
-public class TorrentOptions {
+public final class TorrentOptions {
 
     protected String saveLocation = "/";
     protected String proxyHost;

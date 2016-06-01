@@ -33,6 +33,8 @@ public abstract class TorrentAddedAlertListener implements AlertListener {
             case TORRENT_ADDED:
                 torrentAdded((TorrentAddedAlert) alert);
                 break;
+            default:
+                break;
         }
     }
 
