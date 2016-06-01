@@ -27,7 +27,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
     private ProgressBar progressBar;
     private TorrentStream torrentStream;
 
-    private String mStreamUrl = "magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4";
+    private String streamUrl = "magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.publicbt.com%3A80%2Fannounce&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb%5Fsunflower%5F1080p%5F30fps%5Fnormal.mp4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
         Uri data = getIntent().getData();
         if (action != null && action.equals(Intent.ACTION_VIEW) && data != null) {
             try {
-                mStreamUrl = URLDecoder.decode(data.toString(), "utf-8");
+                streamUrl = URLDecoder.decode(data.toString(), "utf-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -76,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
         torrentStream.addListener(this);
 
         button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(mOnClickListener);
+        button.setOnClickListener(onClickListener);
         progressBar = (ProgressBar) findViewById(R.id.progress);
 
         progressBar.setMax(100);
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
         }
     }
 
-    View.OnClickListener mOnClickListener = new View.OnClickListener() {
+    View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             progressBar.setProgress(0);
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
                 button.setText("Start stream");
                 return;
             }
-            torrentStream.startStream(mStreamUrl);
+            torrentStream.startStream(streamUrl);
             button.setText("Stop stream");
         }
     };
