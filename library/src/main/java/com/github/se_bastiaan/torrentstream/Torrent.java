@@ -306,15 +306,17 @@ public class Torrent implements AlertListener {
     }
 
     /**
-     * Piece
+     * Piece finished
      *
      * @param alert
      */
     private void pieceFinished(PieceFinishedAlert alert) {
         if (state == State.STREAMING && hasPieces != null) {
-            hasPieces[alert.pieceIndex() - firstPieceIndex] = true;
+            int pieceIndex = alert.pieceIndex();
+            hasPieces[pieceIndex - firstPieceIndex] = true;
 
-            for (int i = alert.pieceIndex() - firstPieceIndex; i < hasPieces.length; i++) {
+            for (int i = pieceIndex - firstPieceIndex; i < hasPieces.length; i++) {
+                // Set full priority to first found piece that is not confirmed finished
                 if (!hasPieces[i]) {
                     torrentHandle.piecePriority(i + firstPieceIndex, Priority.SEVEN);
                     torrentHandle.setPieceDeadline(i + firstPieceIndex, 1000);

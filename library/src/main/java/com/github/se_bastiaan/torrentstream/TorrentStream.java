@@ -25,6 +25,7 @@ import com.frostwire.jlibtorrent.Downloader;
 import com.frostwire.jlibtorrent.Priority;
 import com.frostwire.jlibtorrent.Session;
 import com.frostwire.jlibtorrent.SettingsPack;
+import com.frostwire.jlibtorrent.Sha1Hash;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
@@ -80,8 +81,9 @@ public final class TorrentStream {
         @Override
         public void torrentAdded(TorrentAddedAlert alert) {
             InternalTorrentListener listener = new InternalTorrentListener();
-            TorrentHandle th = torrentSession.findTorrent((alert).handle().getInfoHash());
+            TorrentHandle th = torrentSession.findTorrent(alert.handle().getInfoHash());
             currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize);
+
             torrentSession.addListener(currentTorrent);
         }
     };
