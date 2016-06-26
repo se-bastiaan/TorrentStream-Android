@@ -35,14 +35,14 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.se_bastiaan'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.0"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 24
         versionCode 1
-        versionName '1.1.1'
+        versionName '1.2.0'
     }
 
     buildTypes {
@@ -58,7 +58,7 @@ android {
 }
 
 ext {
-    libtorrentVersion = '1.1.0.34'
+    libtorrentVersion = '1.1.0.35'
 }
 
 dependencies {
