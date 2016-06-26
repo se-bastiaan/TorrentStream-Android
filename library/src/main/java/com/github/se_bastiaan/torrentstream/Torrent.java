@@ -39,6 +39,7 @@ public class Torrent implements AlertListener {
     private final static Integer MAX_PREPARE_COUNT = 20;
     private final static Integer MIN_PREPARE_COUNT = 2;
     private final static Integer DEFAULT_PREPARE_COUNT = 5;
+    private final static Integer SEQUENTIAL_CONCURRENT_PIECES_COUNT = 5;
 
     public enum State {UNKNOWN, RETRIEVING_META, STARTING, STREAMING}
 
@@ -46,6 +47,7 @@ public class Torrent implements AlertListener {
     private Integer lastPieceIndex;
     private Integer firstPieceIndex;
     private Integer selectedFileIndex = -1;
+    private Integer interestedPieceIndex = 0;
 
     private Double prepareProgress = 0d;
     private Double progressStep = 0d;
@@ -60,9 +62,9 @@ public class Torrent implements AlertListener {
 
     /**
      * The constructor for a new Torrent
-     * <p>
+     * <p/>
      * First the largest file in the download is selected as the file for playback
-     * <p>
+     * <p/>
      * After setting this priority, the first and last index of the pieces that make up this file are determined.
      * And last: amount of pieces that are needed for playback are calculated (needed for playback means: make up 10 megabyte of the file)
      *
@@ -84,8 +86,7 @@ public class Torrent implements AlertListener {
     }
 
     /**
-     * Reset piece priorities
-     * First set all piece priorities to {@link Priority}.IGNORE and then set the file priority to the file selected for playback.
+     * Reset piece priorities of selected file to normal
      */
     private void resetPriorities() {
         Priority[] priorities = torrentHandle.getPiecePriorities();
@@ -215,6 +216,7 @@ public class Torrent implements AlertListener {
         }
 
         this.firstPieceIndex = firstPieceIndexLocal;
+        this.interestedPieceIndex = this.firstPieceIndex;
         this.lastPieceIndex = lastPieceIndexLocal;
         piecesToPrepare = activePieceCount;
     }
@@ -281,6 +283,71 @@ public class Torrent implements AlertListener {
     }
 
     /**
+     * Check if the piece that contains the specified bytes were downloaded already
+     *
+     * @param bytes The bytes you're interested in
+     * @return {@code true} if downloaded, {@code false} if not
+     */
+    public boolean hasBytes(long bytes) {
+        if (hasPieces == null) {
+            return false;
+        }
+
+        int pieceIndex = (int) (bytes / torrentHandle.getTorrentInfo().pieceLength());
+        return hasPieces[pieceIndex];
+    }
+
+    /**
+     * Set the bytes of the selected file that you're interested in
+     * The piece of that specific offset is selected and that piece plus the 1 preceding and the 3 after it.
+     * These pieces will then be prioritised, which results in continuing the sequential download after that piece
+     *
+     * @param bytes The bytes you're interested in
+     */
+    public void setInterestedBytes(long bytes) {
+        if (hasPieces == null) {
+            return;
+        }
+
+        int pieceIndex = (int) (bytes / torrentHandle.getTorrentInfo().pieceLength());
+        interestedPieceIndex = pieceIndex;
+        if (!hasPieces[pieceIndex] && torrentHandle.piecePriority(pieceIndex + firstPieceIndex) != Priority.SEVEN) {
+            interestedPieceIndex = pieceIndex;
+            int pieces = 5;
+            for (int i = pieceIndex - 1; i < hasPieces.length; i++) {
+                // Set full priority to first found piece that is not confirmed finished
+                if (!hasPieces[i]) {
+                    torrentHandle.piecePriority(i + firstPieceIndex, Priority.SEVEN);
+                    torrentHandle.setPieceDeadline(i + firstPieceIndex, 1000);
+                    pieces--;
+                    if (pieces == 0) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if the interesting pieces are downloaded already
+     *
+     * @return {@code true} if the 5 pieces that were selected using `setInterestedBytes` are all reported complete, {@code false} if not
+     */
+    public boolean hasInterestedBytes() {
+        for (int i = -1; i < 4; i++) {
+            int index = interestedPieceIndex + i;
+            if (hasPieces.length <= index || index < 0) {
+                continue;
+            }
+
+            if (!hasPieces[interestedPieceIndex + i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Start sequential mode downloading
      */
     private void startSequentialMode() {
@@ -289,7 +356,7 @@ public class Torrent implements AlertListener {
         if (hasPieces == null) {
             torrentHandle.setSequentialDownload(true);
         } else {
-            for (int i = firstPieceIndex + piecesToPrepare; i < firstPieceIndex + piecesToPrepare + 5; i++) {
+            for (int i = firstPieceIndex + piecesToPrepare; i < firstPieceIndex + piecesToPrepare + SEQUENTIAL_CONCURRENT_PIECES_COUNT; i++) {
                 torrentHandle.piecePriority(i, Priority.SEVEN);
                 torrentHandle.setPieceDeadline(i, 1000);
             }
@@ -312,15 +379,17 @@ public class Torrent implements AlertListener {
      */
     private void pieceFinished(PieceFinishedAlert alert) {
         if (state == State.STREAMING && hasPieces != null) {
-            int pieceIndex = alert.pieceIndex();
-            hasPieces[pieceIndex - firstPieceIndex] = true;
+            int pieceIndex = alert.pieceIndex() - firstPieceIndex;
+            hasPieces[pieceIndex] = true;
 
-            for (int i = pieceIndex - firstPieceIndex; i < hasPieces.length; i++) {
-                // Set full priority to first found piece that is not confirmed finished
-                if (!hasPieces[i]) {
-                    torrentHandle.piecePriority(i + firstPieceIndex, Priority.SEVEN);
-                    torrentHandle.setPieceDeadline(i + firstPieceIndex, 1000);
-                    break;
+            if (pieceIndex >= interestedPieceIndex) {
+                for (int i = pieceIndex; i < hasPieces.length; i++) {
+                    // Set full priority to first found piece that is not confirmed finished
+                    if (!hasPieces[i]) {
+                        torrentHandle.piecePriority(i + firstPieceIndex, Priority.SEVEN);
+                        torrentHandle.setPieceDeadline(i + firstPieceIndex, 1000);
+                        break;
+                    }
                 }
             }
         } else {

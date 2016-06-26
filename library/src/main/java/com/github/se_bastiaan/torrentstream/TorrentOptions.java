@@ -32,7 +32,7 @@ public final class TorrentOptions {
     protected Integer listeningPort = -1;
     protected Boolean removeFiles = false;
     protected Boolean anonymousMode = false;
-    protected Long prepareSize = 10 * 1024L * 1024L;
+    protected Long prepareSize = 15 * 1024L * 1024L;
 
     private TorrentOptions() {
         // Unused

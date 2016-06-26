@@ -27,6 +27,7 @@ public final class ThreadUtils {
     private ThreadUtils() throws InstantiationException {
         throw new InstantiationException("This class is not created for instantiation");
     }
+
     /**
      * Execute the given {@link Runnable} on the ui thread.
      *

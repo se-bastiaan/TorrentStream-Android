@@ -25,7 +25,6 @@ import com.frostwire.jlibtorrent.Downloader;
 import com.frostwire.jlibtorrent.Priority;
 import com.frostwire.jlibtorrent.Session;
 import com.frostwire.jlibtorrent.SettingsPack;
-import com.frostwire.jlibtorrent.Sha1Hash;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
@@ -455,6 +454,10 @@ public final class TorrentStream {
 
     public Integer getTotalDhtNodes() {
         return dhtNodes;
+    }
+
+    public Torrent getCurrentTorrent() {
+        return currentTorrent;
     }
 
     public void addListener(TorrentListener listener) {
