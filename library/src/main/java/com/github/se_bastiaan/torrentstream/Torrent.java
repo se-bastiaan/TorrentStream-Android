@@ -305,7 +305,7 @@ public class Torrent implements AlertListener {
      * @param bytes The bytes you're interested in
      */
     public void setInterestedBytes(long bytes) {
-        if (hasPieces == null) {
+        if (hasPieces == null && bytes >= 0) {
             return;
         }
 
@@ -314,7 +314,7 @@ public class Torrent implements AlertListener {
         if (!hasPieces[pieceIndex] && torrentHandle.piecePriority(pieceIndex + firstPieceIndex) != Priority.SEVEN) {
             interestedPieceIndex = pieceIndex;
             int pieces = 5;
-            for (int i = pieceIndex - 1; i < hasPieces.length; i++) {
+            for (int i = pieceIndex; i < hasPieces.length; i++) {
                 // Set full priority to first found piece that is not confirmed finished
                 if (!hasPieces[i]) {
                     torrentHandle.piecePriority(i + firstPieceIndex, Priority.SEVEN);
@@ -331,10 +331,10 @@ public class Torrent implements AlertListener {
     /**
      * Checks if the interesting pieces are downloaded already
      *
-     * @return {@code true} if the 5 pieces that were selected using `setInterestedBytes` are all reported complete, {@code false} if not
+     * @return {@code true} if the 5 pieces that were selected using `setInterestedBytes` are all reported complete including the `nextPieces`, {@code false} if not
      */
-    public boolean hasInterestedBytes() {
-        for (int i = -1; i < 4; i++) {
+    public boolean hasInterestedBytes(int nextPieces) {
+        for (int i = 0; i < 5 + nextPieces; i++) {
             int index = interestedPieceIndex + i;
             if (hasPieces.length <= index || index < 0) {
                 continue;
@@ -345,6 +345,23 @@ public class Torrent implements AlertListener {
             }
         }
         return true;
+    }
+
+    /**
+     * Checks if the interesting pieces are downloaded already
+     *
+     * @return {@code true} if the 5 pieces that were selected using `setInterestedBytes` are all reported complete, {@code false} if not
+     */
+    public boolean hasInterestedBytes() {
+        return hasInterestedBytes(0);
+    }
+
+    /**
+     * Get the index of the piece we're currently interested in
+     * @return Interested piece index
+     */
+    public int getInterestedPieceIndex() {
+        return interestedPieceIndex;
     }
 
     /**
