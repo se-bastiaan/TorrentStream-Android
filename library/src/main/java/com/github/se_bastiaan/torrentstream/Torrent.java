@@ -353,7 +353,7 @@ public class Torrent implements AlertListener {
      * @return {@code true} if the 5 pieces that were selected using `setInterestedBytes` are all reported complete, {@code false} if not
      */
     public boolean hasInterestedBytes() {
-        return hasInterestedBytes(0);
+        return hasInterestedBytes(5);
     }
 
     /**
@@ -362,6 +362,14 @@ public class Torrent implements AlertListener {
      */
     public int getInterestedPieceIndex() {
         return interestedPieceIndex;
+    }
+
+    /**
+     * Get amount of pieces to prepare
+     * @return Amount of pieces to prepare
+     */
+    public Integer getPiecesToPrepare() {
+        return piecesToPrepare;
     }
 
     /**
