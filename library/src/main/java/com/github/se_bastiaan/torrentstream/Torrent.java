@@ -76,11 +76,13 @@ public class Torrent implements AlertListener {
 
         this.prepareSize = prepareSize;
 
-        if (selectedFileIndex == -1)
+        if (selectedFileIndex == -1) {
             setLargestFile();
+        }
 
-        if (this.listener != null)
+        if (this.listener != null) {
             this.listener.onStreamPrepared(this);
+        }
     }
 
     /**

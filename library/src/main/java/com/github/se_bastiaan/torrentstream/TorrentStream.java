@@ -22,6 +22,7 @@ import android.os.HandlerThread;
 
 import com.frostwire.jlibtorrent.Priority;
 import com.frostwire.jlibtorrent.SessionManager;
+import com.frostwire.jlibtorrent.SessionParams;
 import com.frostwire.jlibtorrent.SettingsPack;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
@@ -45,6 +46,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 public final class TorrentStream {
@@ -414,7 +416,7 @@ public final class TorrentStream {
             .activeDhtLimit(torrentOptions.maxDht);
 
         if (torrentOptions.listeningPort != -1) {
-            String ifStr = String.format("%s:%d", "0.0.0.0", torrentOptions.listeningPort);
+            String ifStr = String.format(Locale.ENGLISH, "%s:%d", "0.0.0.0", torrentOptions.listeningPort);
             settingsPack.setString(settings_pack.string_types.listen_interfaces.swigValue(), ifStr);
         }
 
@@ -433,7 +435,8 @@ public final class TorrentStream {
         }
 
         if (!torrentSession.isRunning()) {
-            torrentSession.start(settingsPack);
+            SessionParams sessionParams = new SessionParams(settingsPack);
+            torrentSession.start(sessionParams);
         } else {
             torrentSession.applySettings(settingsPack);
         }
