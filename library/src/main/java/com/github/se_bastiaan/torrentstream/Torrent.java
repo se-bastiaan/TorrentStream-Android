@@ -109,7 +109,7 @@ public class Torrent implements AlertListener {
     }
 
     public File getVideoFile() {
-        return new File(torrentHandle.getSavePath() + "/" + torrentHandle.torrentFile().files().filePath(selectedFileIndex));
+        return new File(torrentHandle.savePath() + "/" + torrentHandle.torrentFile().files().filePath(selectedFileIndex));
     }
 
     /**
@@ -118,7 +118,7 @@ public class Torrent implements AlertListener {
      * @return {@link File} The file location
      */
     public File getSaveLocation() {
-        return new File(torrentHandle.getSavePath() + "/" + torrentHandle.getName());
+        return new File(torrentHandle.savePath() + "/" + torrentHandle.name());
     }
 
     /**
