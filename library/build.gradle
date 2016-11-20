@@ -56,7 +56,7 @@ android {
 }
 
 ext {
-    libtorrentVersion = '1.2.0.1'
+    libtorrentVersion = '1.2.0.4'
 }
 
 dependencies {
