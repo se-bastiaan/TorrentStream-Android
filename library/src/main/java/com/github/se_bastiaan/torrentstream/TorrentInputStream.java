@@ -23,6 +23,7 @@ class TorrentInputStream extends FilterInputStream implements AlertListener {
     protected void finalize() throws Throwable {
         synchronized (this) {
             stopped = true;
+            notifyAll();
         }
 
         super.finalize();
@@ -74,6 +75,7 @@ class TorrentInputStream extends FilterInputStream implements AlertListener {
     public void close() throws IOException {
         synchronized (this) {
             stopped = true;
+            notifyAll();
         }
 
         super.close();
