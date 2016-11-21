@@ -1,12 +1,16 @@
 package com.github.se_bastiaan.torrentstream;
 
+import com.frostwire.jlibtorrent.AlertListener;
+import com.frostwire.jlibtorrent.alerts.Alert;
+import com.frostwire.jlibtorrent.alerts.AlertType;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-class TorrentInputStream extends FilterInputStream {
+class TorrentInputStream extends FilterInputStream implements AlertListener {
     private Torrent torrent;
-    private boolean interrupted;
+    private boolean stopped;
     private long location;
 
     TorrentInputStream(Torrent torrent, InputStream inputStream) {
@@ -18,20 +22,20 @@ class TorrentInputStream extends FilterInputStream {
     @Override
     protected void finalize() throws Throwable {
         synchronized (this) {
-            interrupted = true;
+            stopped = true;
         }
 
         super.finalize();
     }
 
     private synchronized boolean waitForPiece(long offset) {
-        while (!Thread.currentThread().isInterrupted() && !interrupted) {
+        while (!Thread.currentThread().isInterrupted() && !stopped) {
             try {
                 if (torrent.hasBytes(offset)) {
                     return true;
                 }
 
-                wait(10);
+                wait();
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
@@ -69,7 +73,7 @@ class TorrentInputStream extends FilterInputStream {
     @Override
     public void close() throws IOException {
         synchronized (this) {
-            interrupted = true;
+            stopped = true;
         }
 
         super.close();
@@ -84,5 +88,27 @@ class TorrentInputStream extends FilterInputStream {
     @Override
     public boolean markSupported() {
         return false;
+    }
+
+    private synchronized void pieceFinished() {
+        notifyAll();
+    }
+
+    @Override
+    public int[] types() {
+        return new int[]{
+                AlertType.PIECE_FINISHED.swig(),
+        };
+    }
+
+    @Override
+    public void alert(Alert<?> alert) {
+        switch (alert.type()) {
+            case PIECE_FINISHED:
+                pieceFinished();
+                break;
+            default:
+                break;
+        }
     }
 }

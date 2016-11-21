@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright (C) 2015-2016 Sébastiaan (github.com/se-bastiaan)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -57,6 +58,8 @@ public class Torrent implements AlertListener {
     private List<Integer> preparePieces;
     private Boolean[] hasPieces;
 
+    private List<WeakReference<TorrentInputStream>> torrentStreamReferences;
+
     private State state = State.RETRIEVING_META;
 
     private final TorrentHandle torrentHandle;
@@ -78,6 +81,8 @@ public class Torrent implements AlertListener {
         this.listener = listener;
 
         this.prepareSize = prepareSize;
+
+        torrentStreamReferences = new ArrayList<>();
 
         if (selectedFileIndex == -1) {
             setLargestFile();
@@ -123,7 +128,10 @@ public class Torrent implements AlertListener {
      */
     public InputStream getVideoStream() throws FileNotFoundException {
         File file = getVideoFile();
-        return new TorrentInputStream(this, new FileInputStream(file));
+        TorrentInputStream inputStream = new TorrentInputStream(this, new FileInputStream(file));
+        torrentStreamReferences.add(new WeakReference<>(inputStream));
+
+        return inputStream;
     }
 
     /**
@@ -289,6 +297,8 @@ public class Torrent implements AlertListener {
         double blockCount = indices.size() * torrentInfo.pieceLength() / status.blockSize();
 
         progressStep = 100 / blockCount;
+
+        torrentStreamReferences.clear();
 
         torrentHandle.resume();
 
@@ -499,6 +509,19 @@ public class Torrent implements AlertListener {
             default:
                 break;
         }
-    }
 
+        Iterator<WeakReference<TorrentInputStream>> i = torrentStreamReferences.iterator();
+
+        while (i.hasNext()) {
+            WeakReference<TorrentInputStream> reference = i.next();
+            TorrentInputStream inputStream = reference.get();
+
+            if (inputStream == null) {
+                i.remove();
+                continue;
+            }
+
+            inputStream.alert(alert);
+        }
+    }
 }
