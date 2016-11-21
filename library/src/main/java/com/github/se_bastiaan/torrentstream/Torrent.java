@@ -29,6 +29,9 @@ import com.frostwire.jlibtorrent.alerts.PieceFinishedAlert;
 import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -110,6 +113,17 @@ public class Torrent implements AlertListener {
 
     public File getVideoFile() {
         return new File(torrentHandle.savePath() + "/" + torrentHandle.torrentFile().files().filePath(selectedFileIndex));
+    }
+
+    /**
+     * Get an InputStream for the video file.
+     * Read is be blocked until the requested piece(s) is downloaded.
+     *
+     * @return {@link InputStream}
+     */
+    public InputStream getVideoStream() throws FileNotFoundException {
+        File file = getVideoFile();
+        return new TorrentInputStream(this, new FileInputStream(file));
     }
 
     /**
