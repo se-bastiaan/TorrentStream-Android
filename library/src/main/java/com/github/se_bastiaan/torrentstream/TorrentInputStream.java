@@ -76,6 +76,12 @@ class TorrentInputStream extends FilterInputStream {
     }
 
     @Override
+    public synchronized long skip(long n) throws IOException {
+        location += n;
+        return super.skip(n);
+    }
+
+    @Override
     public boolean markSupported() {
         return false;
     }
