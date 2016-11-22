@@ -3,7 +3,7 @@ TorrentStream-Android [![Release](https://jitpack.io/v/se-bastiaan/TorrentStream
 
 A torrent streamer library for Android based on [jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
 
-Built for the [Butterproject](https://github.com/butterproject/butter-android).
+Once built for the Popcorn Time and the [Butterproject](https://github.com/butterproject/butter-android). Now just a cool library for anyone to use.
 
 ## How to use
 
