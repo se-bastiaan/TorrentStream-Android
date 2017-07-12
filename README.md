@@ -3,7 +3,7 @@ TorrentStream-Android [![Release](https://jitpack.io/v/se-bastiaan/TorrentStream
 
 A torrent streamer library for Android based on [jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
 
-Built for the [Butterproject](https://github.com/butterproject/butter-android).
+Once built for the Popcorn Time and the [Butterproject](https://github.com/butterproject/butter-android). Now just a cool library for anyone to use.
 
 ## How to use
 
@@ -25,7 +25,13 @@ dependencies {
 }
 ```
 
-###Code samples
+Add to your AndroidManifest.xml (only for saving to the external storage):
+
+```xml
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+```
+
+### Code samples
 
 Create your own `TorrentOptions` instance using the builder and feed it to a new `TorrentStream`.
 
@@ -41,7 +47,7 @@ torrentStream.startStream("https://butterpoject.org/test.torrent");
 
 If you want to get status information about the torrent then you might want to use `addListener` to attach a listener to your `TorrentStream` instance.
 
-##License
+## License
 
     Copyright 2015-2016 Sébastiaan (github.com/se-bastiaan)
 

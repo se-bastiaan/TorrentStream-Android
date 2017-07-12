@@ -45,6 +45,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 public final class TorrentStream {
@@ -124,7 +125,6 @@ public final class TorrentStream {
 
                     sessionManager.addListener(dhtStatsAlertListener);
 
-//                    sessionManager.startDht();
                     sessionManager.start();
 
                     initialising = false;
@@ -185,8 +185,8 @@ public final class TorrentStream {
      */
     private TorrentInfo getTorrentInfo(String torrentUrl) throws TorrentInfoException {
         if (torrentUrl.startsWith("magnet")) {
-
             byte[] data = sessionManager.fetchMagnet(torrentUrl, 30000);
+
             if (data != null)
                 try {
                     return TorrentInfo.bdecode(data);
@@ -418,8 +418,9 @@ public final class TorrentStream {
         settingsPack.uploadRateLimit(torrentOptions.maxUploadSpeed);
         settingsPack.setInteger(settings_pack.int_types.active_dht_limit.swigValue(), torrentOptions.maxDht);
 
+
         if (torrentOptions.listeningPort != -1) {
-            String ifStr = String.format("%s:%d", "0.0.0.0", torrentOptions.listeningPort);
+            String ifStr = String.format(Locale.ENGLISH, "%s:%d", "0.0.0.0", torrentOptions.listeningPort);
             settingsPack.setString(settings_pack.string_types.listen_interfaces.swigValue(), ifStr);
         }
 
