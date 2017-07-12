@@ -82,7 +82,9 @@ public class Torrent implements AlertListener {
 
         this.prepareSize = prepareSize;
 
-        torrentStreamReferences = new ArrayList<>();
+        for(int i = 0; i < torrentHandle.torrentFile().numFiles(); i++) {
+            torrentHandle.setFilePriority(i, Priority.NORMAL);
+        }
 
         if (selectedFileIndex == -1) {
             setLargestFile();
@@ -118,20 +120,6 @@ public class Torrent implements AlertListener {
 
     public File getVideoFile() {
         return new File(torrentHandle.savePath() + "/" + torrentHandle.torrentFile().files().filePath(selectedFileIndex));
-    }
-
-    /**
-     * Get an InputStream for the video file.
-     * Read is be blocked until the requested piece(s) is downloaded.
-     *
-     * @return {@link InputStream}
-     */
-    public InputStream getVideoStream() throws FileNotFoundException {
-        File file = getVideoFile();
-        TorrentInputStream inputStream = new TorrentInputStream(this, new FileInputStream(file));
-        torrentStreamReferences.add(new WeakReference<>(inputStream));
-
-        return inputStream;
     }
 
     /**
@@ -264,6 +252,10 @@ public class Torrent implements AlertListener {
     public void startDownload() {
         if (state == State.STREAMING) return;
         state = State.STARTING;
+
+        for(int i = 0; i < torrentHandle.torrentFile().numFiles(); i++) {
+            torrentHandle.setFilePriority(i, Priority.NORMAL);
+        }
 
         List<Integer> indices = new ArrayList<>();
 

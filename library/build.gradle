@@ -22,7 +22,7 @@ buildscript {
 
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
 
@@ -38,11 +38,11 @@ group='com.github.se_bastiaan'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 2
     }
 
     buildTypes {
@@ -58,7 +58,7 @@ android {
 }
 
 ext {
-    libtorrentVersion = '1.2.0.6'
+    libtorrentVersion = '1.2.0.10'
 }
 
 dependencies {
