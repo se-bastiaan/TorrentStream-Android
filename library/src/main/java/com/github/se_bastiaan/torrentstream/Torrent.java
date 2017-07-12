@@ -76,7 +76,9 @@ public class Torrent implements AlertListener {
 
         this.prepareSize = prepareSize;
 
-        torrentHandle.setPriority(Priority.NORMAL.swig());
+        for(int i = 0; i < torrentHandle.torrentFile().numFiles(); i++) {
+            torrentHandle.setFilePriority(i, Priority.NORMAL);
+        }
 
         if (selectedFileIndex == -1)
             setLargestFile();
@@ -109,7 +111,7 @@ public class Torrent implements AlertListener {
     }
 
     public File getVideoFile() {
-        return new File(torrentHandle.getSavePath() + "/" + torrentHandle.getTorrentInfo().files().filePath(selectedFileIndex));
+        return new File(torrentHandle.savePath() + "/" + torrentHandle.torrentFile().files().filePath(selectedFileIndex));
     }
 
     /**
@@ -118,7 +120,7 @@ public class Torrent implements AlertListener {
      * @return {@link File} The file location
      */
     public File getSaveLocation() {
-        return new File(torrentHandle.getSavePath() + "/" + torrentHandle.getName());
+        return new File(torrentHandle.savePath() + "/" + torrentHandle.name());
     }
 
     /**
@@ -149,7 +151,7 @@ public class Torrent implements AlertListener {
      * @param selectedFileIndex {@link Integer} Index of the file
      */
     public void setSelectedFileIndex(Integer selectedFileIndex) {
-        TorrentInfo torrentInfo = torrentHandle.getTorrentInfo();
+        TorrentInfo torrentInfo = torrentHandle.torrentFile();
         FileStorage fileStorage = torrentInfo.files();
 
         if (selectedFileIndex == -1) {
@@ -198,7 +200,7 @@ public class Torrent implements AlertListener {
             lastPieceIndexLocal = piecePriorities.length - 1;
         }
         int pieceCount = lastPieceIndexLocal - firstPieceIndexLocal + 1;
-        int pieceLength = torrentHandle.getTorrentInfo().pieceLength();
+        int pieceLength = torrentHandle.torrentFile().pieceLength();
         int activePieceCount;
         if (pieceLength > 0) {
             activePieceCount = (int) (prepareSize / pieceLength);
@@ -227,7 +229,7 @@ public class Torrent implements AlertListener {
      * @return {@link String[]}
      */
     public String[] getFileNames() {
-        FileStorage fileStorage = torrentHandle.getTorrentInfo().files();
+        FileStorage fileStorage = torrentHandle.torrentFile().files();
         String[] fileNames = new String[fileStorage.numFiles()];
         for (int i = 0; i < fileStorage.numFiles(); i++) {
             fileNames[i] = fileStorage.fileName(i);
@@ -242,7 +244,10 @@ public class Torrent implements AlertListener {
     public void startDownload() {
         if (state == State.STREAMING) return;
         state = State.STARTING;
-        torrentHandle.setPriority(Priority.NORMAL.swig());
+
+        for(int i = 0; i < torrentHandle.torrentFile().numFiles(); i++) {
+            torrentHandle.setFilePriority(i, Priority.NORMAL);
+        }
 
         List<Integer> indices = new ArrayList<>();
 
@@ -270,10 +275,10 @@ public class Torrent implements AlertListener {
         hasPieces = new Boolean[lastPieceIndex - firstPieceIndex + 1];
         Arrays.fill(hasPieces, false);
 
-        TorrentInfo torrentInfo = torrentHandle.getTorrentInfo();
-        TorrentStatus status = torrentHandle.getStatus();
+        TorrentInfo torrentInfo = torrentHandle.torrentFile();
+        TorrentStatus status = torrentHandle.status();
 
-        double blockCount = indices.size() * torrentInfo.pieceLength() / status.getBlockSize();
+        double blockCount = indices.size() * torrentInfo.pieceLength() / status.blockSize();
 
         progressStep = 100 / blockCount;
 
@@ -293,7 +298,7 @@ public class Torrent implements AlertListener {
             return false;
         }
 
-        int pieceIndex = (int) (bytes / torrentHandle.getTorrentInfo().pieceLength());
+        int pieceIndex = (int) (bytes / torrentHandle.torrentFile().pieceLength());
         return hasPieces[pieceIndex];
     }
 
@@ -309,7 +314,7 @@ public class Torrent implements AlertListener {
             return;
         }
 
-        int pieceIndex = (int) (bytes / torrentHandle.getTorrentInfo().pieceLength());
+        int pieceIndex = (int) (bytes / torrentHandle.torrentFile().pieceLength());
         interestedPieceIndex = pieceIndex;
         if (!hasPieces[pieceIndex] && torrentHandle.piecePriority(pieceIndex + firstPieceIndex) != Priority.SEVEN) {
             interestedPieceIndex = pieceIndex;
@@ -446,7 +451,7 @@ public class Torrent implements AlertListener {
 
     private void blockFinished(BlockFinishedAlert alert) {
         for (Integer index : preparePieces) {
-            if (index == alert.getPieceIndex()) {
+            if (index == alert.pieceIndex()) {
                 prepareProgress += progressStep;
                 break;
             }
@@ -456,10 +461,10 @@ public class Torrent implements AlertListener {
     }
 
     private void sendStreamProgress() {
-        TorrentStatus status = torrentHandle.getStatus();
-        float progress = status.getProgress() * 100;
-        int seeds = status.getNumSeeds();
-        int downloadSpeed = status.getDownloadPayloadRate();
+        TorrentStatus status = torrentHandle.status();
+        float progress = status.progress() * 100;
+        int seeds = status.numSeeds();
+        int downloadSpeed = status.downloadPayloadRate();
 
         if (listener != null && prepareProgress >= 1) {
             listener.onStreamProgress(this, new StreamStatus(progress, prepareProgress.intValue(), seeds, downloadSpeed));
