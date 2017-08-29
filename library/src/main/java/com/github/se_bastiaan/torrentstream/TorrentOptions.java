@@ -32,6 +32,7 @@ public final class TorrentOptions {
     protected Integer listeningPort = -1;
     protected Boolean removeFiles = false;
     protected Boolean anonymousMode = false;
+    protected Boolean autoDownload = true;
     protected Long prepareSize = 15 * 1024L * 1024L;
 
     private TorrentOptions() {
@@ -51,6 +52,7 @@ public final class TorrentOptions {
         this.listeningPort = torrentOptions.listeningPort;
         this.removeFiles = torrentOptions.removeFiles;
         this.anonymousMode = torrentOptions.anonymousMode;
+        this.autoDownload = torrentOptions.autoDownload;
         this.prepareSize = torrentOptions.prepareSize;
     }
 
@@ -132,6 +134,11 @@ public final class TorrentOptions {
             torrentOptions.anonymousMode = enable;
             if (torrentOptions.anonymousMode)
                 torrentOptions.peerFingerprint = null;
+            return this;
+        }
+
+        public Builder autoDownload(Boolean enable) {
+            torrentOptions.autoDownload = enable;
             return this;
         }
 

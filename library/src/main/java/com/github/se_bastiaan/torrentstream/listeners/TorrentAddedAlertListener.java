@@ -17,26 +17,26 @@
 package com.github.se_bastiaan.torrentstream.listeners;
 
 import com.frostwire.jlibtorrent.AlertListener;
+import com.frostwire.jlibtorrent.alerts.AddTorrentAlert;
 import com.frostwire.jlibtorrent.alerts.Alert;
 import com.frostwire.jlibtorrent.alerts.AlertType;
-import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
 
 public abstract class TorrentAddedAlertListener implements AlertListener {
     @Override
     public int[] types() {
-        return new int[]{AlertType.TORRENT_ADDED.swig()};
+        return new int[]{AlertType.ADD_TORRENT.swig()};
     }
 
     @Override
     public void alert(Alert<?> alert) {
         switch (alert.type()) {
-            case TORRENT_ADDED:
-                torrentAdded((TorrentAddedAlert) alert);
+            case ADD_TORRENT:
+                torrentAdded((AddTorrentAlert) alert);
                 break;
             default:
                 break;
         }
     }
 
-    public abstract void torrentAdded(TorrentAddedAlert alert);
+    public abstract void torrentAdded(AddTorrentAlert alert);
 }

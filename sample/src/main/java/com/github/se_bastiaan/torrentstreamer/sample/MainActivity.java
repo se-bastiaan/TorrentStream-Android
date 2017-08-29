@@ -108,7 +108,8 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
     @Override
     public void onStreamPrepared(Torrent torrent) {
         Log.d(TORRENT, "OnStreamPrepared");
-        torrent.startDownload();
+        // If you set TorrentOptions#autoDownload(false) then this is probably the place to call
+        // torrent.startDownload();
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.github.se_bastiaan.torrentstream;
 import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.FileStorage;
 import com.frostwire.jlibtorrent.Priority;
+import com.frostwire.jlibtorrent.TorrentFlags;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
 import com.frostwire.jlibtorrent.TorrentStatus;
@@ -402,7 +403,7 @@ public class Torrent implements AlertListener {
         resetPriorities();
 
         if (hasPieces == null) {
-            torrentHandle.setSequentialDownload(true);
+            torrentHandle.setFlags(torrentHandle.flags().and_(TorrentFlags.SEQUENTIAL_DOWNLOAD));
         } else {
             for (int i = firstPieceIndex + piecesToPrepare; i < firstPieceIndex + piecesToPrepare + SEQUENTIAL_CONCURRENT_PIECES_COUNT; i++) {
                 torrentHandle.piecePriority(i, Priority.SEVEN);

@@ -26,7 +26,7 @@ import com.frostwire.jlibtorrent.SessionParams;
 import com.frostwire.jlibtorrent.SettingsPack;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.frostwire.jlibtorrent.TorrentInfo;
-import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
+import com.frostwire.jlibtorrent.alerts.AddTorrentAlert;
 import com.frostwire.jlibtorrent.swig.settings_pack;
 import com.github.se_bastiaan.torrentstream.exceptions.DirectoryModifyException;
 import com.github.se_bastiaan.torrentstream.exceptions.NotInitializedException;
@@ -77,7 +77,7 @@ public final class TorrentStream {
 
     private final TorrentAddedAlertListener torrentAddedAlertListener = new TorrentAddedAlertListener() {
         @Override
-        public void torrentAdded(TorrentAddedAlert alert) {
+        public void torrentAdded(AddTorrentAlert alert) {
             InternalTorrentListener listener = new InternalTorrentListener();
             TorrentHandle th = torrentSession.find(alert.handle().infoHash());
             currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize);
@@ -521,6 +521,10 @@ public final class TorrentStream {
 
         @Override
         public void onStreamPrepared(final Torrent torrent) {
+            if (torrentOptions.autoDownload) {
+                torrent.startDownload();
+            }
+
             for (final TorrentListener listener : listeners) {
                 ThreadUtils.runOnUiThread(new Runnable() {
                     @Override

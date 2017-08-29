@@ -14,35 +14,18 @@
  * limitations under the License.
  */
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 group='com.github.se_bastiaan'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.0"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
     }
 
     buildTypes {
@@ -58,7 +41,7 @@ android {
 }
 
 ext {
-    libtorrentVersion = '1.2.0.6'
+    libtorrentVersion = '1.2.0.12'
 }
 
 dependencies {
