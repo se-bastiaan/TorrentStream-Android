@@ -189,7 +189,7 @@ public final class TorrentStream {
                 try {
                     return TorrentInfo.bdecode(data);
                 } catch (IllegalArgumentException e) {
-                    throw new TorrentInfoException();
+                    throw new TorrentInfoException(e);
                 }
 
         } else if (torrentUrl.startsWith("http") || torrentUrl.startsWith("https")) {
@@ -216,7 +216,7 @@ public final class TorrentStream {
                     return TorrentInfo.bdecode(responseByteArray);
                 }
             } catch (IOException | IllegalArgumentException e) {
-                throw new TorrentInfoException();
+                throw new TorrentInfoException(e);
             }
         } else if (torrentUrl.startsWith("file")) {
             Uri path = Uri.parse(torrentUrl);
@@ -231,7 +231,7 @@ public final class TorrentStream {
                     return TorrentInfo.bdecode(responseByteArray);
                 }
             } catch (IOException | IllegalArgumentException e) {
-                throw new TorrentInfoException();
+                throw new TorrentInfoException(e);
             }
         }
 
