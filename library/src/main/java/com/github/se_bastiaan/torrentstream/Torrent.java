@@ -98,7 +98,7 @@ public class Torrent implements AlertListener {
      * Reset piece priorities of selected file to normal
      */
     private void resetPriorities() {
-        Priority[] priorities = torrentHandle.getPiecePriorities();
+        Priority[] priorities = torrentHandle.piecePriorities();
         for (int i = 0; i < priorities.length; i++) {
             if (i >= firstPieceIndex && i <= lastPieceIndex) {
                 torrentHandle.piecePriority(i, Priority.NORMAL);
@@ -182,26 +182,26 @@ public class Torrent implements AlertListener {
                 long fileSize = fileStorage.fileSize(i);
                 if (highestFileSize < fileSize) {
                     highestFileSize = fileSize;
-                    torrentHandle.setFilePriority(selectedFile, Priority.IGNORE);
+                    torrentHandle.filePriority(selectedFile, Priority.IGNORE);
                     selectedFile = i;
-                    torrentHandle.setFilePriority(i, Priority.NORMAL);
+                    torrentHandle.filePriority(i, Priority.NORMAL);
                 } else {
-                    torrentHandle.setFilePriority(i, Priority.IGNORE);
+                    torrentHandle.filePriority(i, Priority.IGNORE);
                 }
             }
             selectedFileIndex = selectedFile;
         } else {
             for (int i = 0; i < fileStorage.numFiles(); i++) {
                 if (i == selectedFileIndex) {
-                    torrentHandle.setFilePriority(i, Priority.NORMAL);
+                    torrentHandle.filePriority(i, Priority.NORMAL);
                 } else {
-                    torrentHandle.setFilePriority(i, Priority.IGNORE);
+                    torrentHandle.filePriority(i, Priority.IGNORE);
                 }
             }
         }
         this.selectedFileIndex = selectedFileIndex;
 
-        Priority[] piecePriorities = torrentHandle.getPiecePriorities();
+        Priority[] piecePriorities = torrentHandle.piecePriorities();
         int firstPieceIndexLocal = -1;
         int lastPieceIndexLocal = -1;
         for (int i = 0; i < piecePriorities.length; i++) {
@@ -268,7 +268,7 @@ public class Torrent implements AlertListener {
 
         List<Integer> indices = new ArrayList<>();
 
-        Priority[] priorities = torrentHandle.getPiecePriorities();
+        Priority[] priorities = torrentHandle.piecePriorities();
         for (int i = 0; i < priorities.length; i++) {
             if (priorities[i] != Priority.IGNORE) {
                 torrentHandle.piecePriority(i, Priority.NORMAL);

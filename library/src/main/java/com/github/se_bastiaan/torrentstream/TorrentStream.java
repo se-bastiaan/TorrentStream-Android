@@ -321,7 +321,7 @@ public final class TorrentStream {
                         ThreadUtils.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                listener.onStreamError(null, new TorrentInfoException());
+                                listener.onStreamError(null, new TorrentInfoException(null));
                             }
                         });
                     }
