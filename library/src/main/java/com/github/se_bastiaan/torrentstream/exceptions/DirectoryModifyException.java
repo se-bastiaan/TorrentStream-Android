@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2016 Sébastiaan (github.com/se-bastiaan)
+ * Copyright (C) 2015-2018 Sébastiaan (github.com/se-bastiaan)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
