@@ -20,12 +20,12 @@ apply plugin: 'com.github.dcendents.android-maven'
 group='com.github.se_bastiaan'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 27
+        targetSdkVersion 28
     }
 
     buildTypes {
@@ -41,14 +41,14 @@ android {
 }
 
 ext {
-    libtorrentVersion = '1.2.0.16'
+    libtorrentVersion = '1.2.0.18'
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.frostwire:jlibtorrent:$libtorrentVersion"
-    compile "com.frostwire:jlibtorrent-android-arm:$libtorrentVersion"
-    compile "com.frostwire:jlibtorrent-android-arm64:$libtorrentVersion"
-    compile "com.frostwire:jlibtorrent-android-x86:$libtorrentVersion"
-    compile "com.frostwire:jlibtorrent-android-x86_64:$libtorrentVersion"
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api "com.frostwire:jlibtorrent:$libtorrentVersion"
+    api "com.frostwire:jlibtorrent-android-arm:$libtorrentVersion"
+    api "com.frostwire:jlibtorrent-android-arm64:$libtorrentVersion"
+    api "com.frostwire:jlibtorrent-android-x86:$libtorrentVersion"
+    api "com.frostwire:jlibtorrent-android-x86_64:$libtorrentVersion"
 }

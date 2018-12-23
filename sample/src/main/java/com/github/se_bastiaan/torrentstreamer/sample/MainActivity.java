@@ -89,9 +89,9 @@ public class MainActivity extends AppCompatActivity implements TorrentListener {
         torrentStream = TorrentStream.init(torrentOptions);
         torrentStream.addListener(this);
 
-        button = (Button) findViewById(R.id.button);
+        button = findViewById(R.id.button);
         button.setOnClickListener(onClickListener);
-        progressBar = (ProgressBar) findViewById(R.id.progress);
+        progressBar = findViewById(R.id.progress);
 
         progressBar.setMax(100);
     }
