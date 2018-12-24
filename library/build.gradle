@@ -17,7 +17,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group='com.github.se_bastiaan'
+group='com.github.TorrentStream'
 
 android {
     compileSdkVersion 28
