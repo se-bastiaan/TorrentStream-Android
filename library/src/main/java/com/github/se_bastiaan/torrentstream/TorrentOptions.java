@@ -20,20 +20,20 @@ import java.io.File;
 
 public final class TorrentOptions {
 
-    protected String saveLocation = "/";
-    protected String proxyHost;
-    protected String proxyUsername;
-    protected String proxyPassword;
-    protected String peerFingerprint;
-    protected Integer maxDownloadSpeed = 0;
-    protected Integer maxUploadSpeed = 0;
-    protected Integer maxConnections = 200;
-    protected Integer maxDht = 88;
-    protected Integer listeningPort = -1;
-    protected Boolean removeFiles = false;
-    protected Boolean anonymousMode = false;
-    protected Boolean autoDownload = true;
-    protected Long prepareSize = 15 * 1024L * 1024L;
+    String saveLocation = "/";
+    String proxyHost;
+    String proxyUsername;
+    String proxyPassword;
+    String peerFingerprint;
+    Integer maxDownloadSpeed = 0;
+    Integer maxUploadSpeed = 0;
+    Integer maxConnections = 200;
+    Integer maxDht = 88;
+    Integer listeningPort = -1;
+    Boolean removeFiles = false;
+    Boolean anonymousMode = false;
+    Boolean autoDownload = true;
+    Long prepareSize = 15 * 1024L * 1024L;
 
     private TorrentOptions() {
         // Unused
