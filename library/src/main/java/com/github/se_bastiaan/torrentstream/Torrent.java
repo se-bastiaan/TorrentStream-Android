@@ -263,7 +263,7 @@ public class Torrent implements AlertListener {
      * from {@code firstPieceIndex} and {@code lastPieceIndex}. Ignore all other pieces.
      */
     public void startDownload() {
-        if (state == State.STREAMING) return;
+        if (state == State.STREAMING || state == State.STARTING) return;
         state = State.STARTING;
 
         List<Integer> indices = new ArrayList<>();
