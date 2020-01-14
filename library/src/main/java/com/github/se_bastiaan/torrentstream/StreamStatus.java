@@ -20,7 +20,7 @@ public class StreamStatus {
     public final float progress;
     public final int bufferProgress;
     public final int seeds;
-    public final float downloadSpeed;
+    public final int downloadSpeed;
 
     StreamStatus(float progress, int bufferProgress, int seeds, int downloadSpeed) {
         this.progress = progress;
