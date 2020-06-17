@@ -103,6 +103,14 @@ public final class TorrentStream {
         return sThis;
     }
 
+    /**
+     * Obtain internal session manager
+     * @return {@link SessionManager}
+     */
+    public SessionManager getSessionManager() {
+        return torrentSession;
+    }
+
     private void initialise() {
         if (libTorrentThread != null && torrentSession != null) {
             resumeSession();
