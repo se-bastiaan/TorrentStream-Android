@@ -192,7 +192,7 @@ public final class TorrentStream {
      */
     private TorrentInfo getTorrentInfo(String torrentUrl) throws TorrentInfoException {
         if (torrentUrl.startsWith("magnet")) {
-            byte[] data = torrentSession.fetchMagnet(torrentUrl, 30000);
+            byte[] data = torrentSession.fetchMagnet(torrentUrl, 30);
             if (data != null)
                 try {
                     return TorrentInfo.bdecode(data);
