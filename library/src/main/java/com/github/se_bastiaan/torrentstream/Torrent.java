@@ -16,6 +16,8 @@
 
 package com.github.se_bastiaan.torrentstream;
 
+import android.util.Log;
+
 import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.FileStorage;
 import com.frostwire.jlibtorrent.Priority;
@@ -77,7 +79,7 @@ public class Torrent implements AlertListener {
      *
      * @param torrentHandle jlibtorrent TorrentHandle
      */
-    public Torrent(TorrentHandle torrentHandle, TorrentListener listener, Long prepareSize) {
+    public Torrent(TorrentHandle torrentHandle, TorrentListener listener, Long prepareSize, String file) {
         this.torrentHandle = torrentHandle;
         this.listener = listener;
 
@@ -85,8 +87,10 @@ public class Torrent implements AlertListener {
 
         torrentStreamReferences = new ArrayList<>();
 
-        if (selectedFileIndex == -1) {
+        if (file.equals("")) {
             setLargestFile();
+        } else {
+            setSelectedFileIndex(getFileIndexByName(file));
         }
 
         if (this.listener != null) {
@@ -156,6 +160,20 @@ public class Torrent implements AlertListener {
      */
     public void pause() {
         torrentHandle.pause();
+    }
+
+    public Integer getFileIndexByName(String file)
+    {
+        TorrentInfo torrentInfo = torrentHandle.torrentFile();
+        FileStorage fileStorage = torrentInfo.files();
+        for (int i = 0; i < fileStorage.numFiles(); i++) {
+            String filePath = fileStorage.filePath(i);
+            if (filePath.endsWith(file)) {
+                Log.d("FILES", file + " ::" + filePath);
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**

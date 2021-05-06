@@ -19,6 +19,7 @@ package com.github.se_bastiaan.torrentstream;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import com.frostwire.jlibtorrent.Priority;
 import com.frostwire.jlibtorrent.SessionManager;
@@ -61,6 +62,7 @@ public final class TorrentStream {
 
     private Torrent currentTorrent;
     private String currentTorrentUrl;
+    private String currentTorrentFile;
     private Integer dhtNodes = 0;
 
     private final List<TorrentListener> listeners = new ArrayList<>();
@@ -80,7 +82,7 @@ public final class TorrentStream {
         public void torrentAdded(AddTorrentAlert alert) {
             InternalTorrentListener listener = new InternalTorrentListener();
             TorrentHandle th = torrentSession.find(alert.handle().infoHash());
-            currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize);
+            currentTorrent = new Torrent(th, listener, torrentOptions.prepareSize, currentTorrentFile);
 
             torrentSession.addListener(currentTorrent);
         }
@@ -266,6 +268,16 @@ public final class TorrentStream {
      * @param torrentUrl {@link String} .torrent or magnet link
      */
     public void startStream(final String torrentUrl) {
+        this.startStream(torrentUrl, "");
+    }
+
+    /**
+     * Start stream download for specified torrent
+     *
+     * @param torrentUrl {@link String} .torrent or magnet link
+     * @param file {@link String} file in torrent
+     */
+    public void startStream(final String torrentUrl, final String file) {
         if (!initialising && !initialised)
             initialise();
 
@@ -293,6 +305,8 @@ public final class TorrentStream {
                 }
 
                 currentTorrentUrl = torrentUrl;
+                currentTorrentFile = file;
+                Log.d("Torrent", torrentUrl + " ::: " + file);
 
                 File saveDirectory = new File(torrentOptions.saveLocation);
                 if (!saveDirectory.isDirectory() && !saveDirectory.mkdirs()) {
