@@ -41,7 +41,7 @@ android {
 }
 
 ext {
-    libtorrentVersion = '1.2.5.0'
+    libtorrentVersion = '1.2.14.1'
 }
 
 // Custom task which downloads the appropriate version of JAR files for jlibtorrent

@@ -216,7 +216,9 @@ public class Torrent implements AlertListener {
                 }
             }
         }
-
+        if (firstPieceIndexLocal == -1) {
+            firstPieceIndexLocal = 0;
+        }
         if (lastPieceIndexLocal == -1) {
             lastPieceIndexLocal = piecePriorities.length - 1;
         }
