@@ -15,17 +15,15 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'de.undercouch.download'
 
 group='com.github.TorrentStream'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 32
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 29
+        minSdk 15
+        targetSdk 32
     }
 
     buildTypes {
@@ -34,39 +32,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    lintOptions {
+    lint {
         abortOnError true
     }
 }
 
 ext {
-    libtorrentVersion = '1.2.14.1'
-}
-
-// Custom task which downloads the appropriate version of JAR files for jlibtorrent
-task downloadDependencies(type: Download) {
-    def baseUrl = "https://github.com/frostwire/frostwire-jlibtorrent" +
-            "/releases/download/release%2F$libtorrentVersion"
-
-    def platforms = ['arm', 'arm64', 'x86', 'x86_64']
-    def urls = platforms.collect { "$baseUrl/jlibtorrent-android-$it-${libtorrentVersion}.jar" }
-    urls.add("$baseUrl/jlibtorrent-${libtorrentVersion}.jar")
-
-    src urls
-    dest 'libs'
-    overwrite false
-}
-
-// Add our custom task as a dependency to the build
-// You may need to run gradle sync for IDE warnings to disappear
-preBuild.dependsOn(downloadDependencies)
-
-// Add deletion of libs folder to clean task
-clean {
-    delete 'libs'
+    libtorrentVersion = '2.0.6-26'
 }
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
+    api "org.libtorrent4j:libtorrent4j:$libtorrentVersion"
+    api "org.libtorrent4j:libtorrent4j-android-arm:$libtorrentVersion"
+    api "org.libtorrent4j:libtorrent4j-android-arm64:$libtorrentVersion"
+    api "org.libtorrent4j:libtorrent4j-android-x86:$libtorrentVersion"
+    api "org.libtorrent4j:libtorrent4j-android-x86_64:$libtorrentVersion"
 }

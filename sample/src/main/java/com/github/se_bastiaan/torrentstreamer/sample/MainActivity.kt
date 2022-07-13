@@ -29,6 +29,7 @@ import android.widget.Button
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.viewbinding.BuildConfig
 import com.github.se_bastiaan.torrentstream.StreamStatus
 import com.github.se_bastiaan.torrentstream.Torrent
 import com.github.se_bastiaan.torrentstream.TorrentOptions
@@ -102,7 +103,7 @@ class MainActivity : AppCompatActivity(), TorrentListener {
         startActivity(Intent().apply {
             action = Intent.ACTION_VIEW
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(mediaFile.extension)
-            val authority = "${BuildConfig.APPLICATION_ID}.provider"
+            val authority = "com.github.se_bastiaan.torrentstreamer.sample.provider"
             data = FileProvider.getUriForFile(this@MainActivity, authority, mediaFile)
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP

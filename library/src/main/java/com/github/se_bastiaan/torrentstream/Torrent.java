@@ -16,17 +16,17 @@
 
 package com.github.se_bastiaan.torrentstream;
 
-import com.frostwire.jlibtorrent.AlertListener;
-import com.frostwire.jlibtorrent.FileStorage;
-import com.frostwire.jlibtorrent.Priority;
-import com.frostwire.jlibtorrent.TorrentFlags;
-import com.frostwire.jlibtorrent.TorrentHandle;
-import com.frostwire.jlibtorrent.TorrentInfo;
-import com.frostwire.jlibtorrent.TorrentStatus;
-import com.frostwire.jlibtorrent.alerts.Alert;
-import com.frostwire.jlibtorrent.alerts.AlertType;
-import com.frostwire.jlibtorrent.alerts.BlockFinishedAlert;
-import com.frostwire.jlibtorrent.alerts.PieceFinishedAlert;
+import org.libtorrent4j.AlertListener;
+import org.libtorrent4j.FileStorage;
+import org.libtorrent4j.Priority;
+import org.libtorrent4j.TorrentFlags;
+import org.libtorrent4j.TorrentHandle;
+import org.libtorrent4j.TorrentInfo;
+import org.libtorrent4j.TorrentStatus;
+import org.libtorrent4j.alerts.Alert;
+import org.libtorrent4j.alerts.AlertType;
+import org.libtorrent4j.alerts.BlockFinishedAlert;
+import org.libtorrent4j.alerts.PieceFinishedAlert;
 import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 
 import java.io.File;
@@ -101,7 +101,7 @@ public class Torrent implements AlertListener {
         Priority[] priorities = torrentHandle.piecePriorities();
         for (int i = 0; i < priorities.length; i++) {
             if (i >= firstPieceIndex && i <= lastPieceIndex) {
-                torrentHandle.piecePriority(i, Priority.NORMAL);
+                torrentHandle.piecePriority(i, Priority.DEFAULT);
             } else {
                 torrentHandle.piecePriority(i, Priority.IGNORE);
             }
@@ -141,7 +141,7 @@ public class Torrent implements AlertListener {
      * @return {@link File} The file location
      */
     public File getSaveLocation() {
-        return new File(torrentHandle.savePath() + "/" + torrentHandle.name());
+        return new File(torrentHandle.savePath() + "/" + torrentHandle.getName());
     }
 
     /**
@@ -184,7 +184,7 @@ public class Torrent implements AlertListener {
                     highestFileSize = fileSize;
                     torrentHandle.filePriority(selectedFile, Priority.IGNORE);
                     selectedFile = i;
-                    torrentHandle.filePriority(i, Priority.NORMAL);
+                    torrentHandle.filePriority(i, Priority.DEFAULT);
                 } else {
                     torrentHandle.filePriority(i, Priority.IGNORE);
                 }
@@ -193,7 +193,7 @@ public class Torrent implements AlertListener {
         } else {
             for (int i = 0; i < fileStorage.numFiles(); i++) {
                 if (i == selectedFileIndex) {
-                    torrentHandle.filePriority(i, Priority.NORMAL);
+                    torrentHandle.filePriority(i, Priority.DEFAULT);
                 } else {
                     torrentHandle.filePriority(i, Priority.IGNORE);
                 }
@@ -273,19 +273,19 @@ public class Torrent implements AlertListener {
         Priority[] priorities = torrentHandle.piecePriorities();
         for (int i = 0; i < priorities.length; i++) {
             if (priorities[i] != Priority.IGNORE) {
-                torrentHandle.piecePriority(i, Priority.NORMAL);
+                torrentHandle.piecePriority(i, Priority.DEFAULT);
             }
         }
 
         for (int i = 0; i < piecesToPrepare; i++) {
             indices.add(lastPieceIndex - i);
-            torrentHandle.piecePriority(lastPieceIndex - i, Priority.SEVEN);
+            torrentHandle.piecePriority(lastPieceIndex - i, Priority.TOP_PRIORITY);
             torrentHandle.setPieceDeadline(lastPieceIndex - i, 1000);
         }
 
         for (int i = 0; i < piecesToPrepare; i++) {
             indices.add(firstPieceIndex + i);
-            torrentHandle.piecePriority(firstPieceIndex + i, Priority.SEVEN);
+            torrentHandle.piecePriority(firstPieceIndex + i, Priority.TOP_PRIORITY);
             torrentHandle.setPieceDeadline(firstPieceIndex + i, 1000);
         }
 
@@ -337,13 +337,13 @@ public class Torrent implements AlertListener {
 
         int pieceIndex = (int) (bytes / torrentHandle.torrentFile().pieceLength());
         interestedPieceIndex = pieceIndex;
-        if (!hasPieces[pieceIndex] && torrentHandle.piecePriority(pieceIndex + firstPieceIndex) != Priority.SEVEN) {
+        if (!hasPieces[pieceIndex] && torrentHandle.piecePriority(pieceIndex + firstPieceIndex) != Priority.TOP_PRIORITY) {
             interestedPieceIndex = pieceIndex;
             int pieces = 5;
             for (int i = pieceIndex; i < hasPieces.length; i++) {
                 // Set full priority to first found piece that is not confirmed finished
                 if (!hasPieces[i]) {
-                    torrentHandle.piecePriority(i + firstPieceIndex, Priority.SEVEN);
+                    torrentHandle.piecePriority(i + firstPieceIndex, Priority.TOP_PRIORITY);
                     torrentHandle.setPieceDeadline(i + firstPieceIndex, 1000);
                     pieces--;
                     if (pieces == 0) {
@@ -405,10 +405,10 @@ public class Torrent implements AlertListener {
         resetPriorities();
 
         if (hasPieces == null) {
-            torrentHandle.setFlags(torrentHandle.flags().and_(TorrentFlags.SEQUENTIAL_DOWNLOAD));
+            torrentHandle.setFlags(torrentHandle.getFlags().and_(TorrentFlags.SEQUENTIAL_DOWNLOAD));
         } else {
             for (int i = firstPieceIndex + piecesToPrepare; i < firstPieceIndex + piecesToPrepare + SEQUENTIAL_CONCURRENT_PIECES_COUNT; i++) {
-                torrentHandle.piecePriority(i, Priority.SEVEN);
+                torrentHandle.piecePriority(i, Priority.TOP_PRIORITY);
                 torrentHandle.setPieceDeadline(i, 1000);
             }
         }
@@ -437,7 +437,7 @@ public class Torrent implements AlertListener {
                 for (int i = pieceIndex; i < hasPieces.length; i++) {
                     // Set full priority to first found piece that is not confirmed finished
                     if (!hasPieces[i]) {
-                        torrentHandle.piecePriority(i + firstPieceIndex, Priority.SEVEN);
+                        torrentHandle.piecePriority(i + firstPieceIndex, Priority.TOP_PRIORITY);
                         torrentHandle.setPieceDeadline(i + firstPieceIndex, 1000);
                         break;
                     }

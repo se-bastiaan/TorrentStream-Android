@@ -16,5 +16,18 @@
  *  * along with TorrentStreamer-Android. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
 include ':library', ':sample'

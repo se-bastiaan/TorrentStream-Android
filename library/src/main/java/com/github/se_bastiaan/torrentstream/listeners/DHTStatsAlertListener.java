@@ -19,11 +19,11 @@
 
 package com.github.se_bastiaan.torrentstream.listeners;
 
-import com.frostwire.jlibtorrent.AlertListener;
-import com.frostwire.jlibtorrent.DhtRoutingBucket;
-import com.frostwire.jlibtorrent.alerts.Alert;
-import com.frostwire.jlibtorrent.alerts.AlertType;
-import com.frostwire.jlibtorrent.alerts.DhtStatsAlert;
+import org.libtorrent4j.AlertListener;
+import org.libtorrent4j.DhtRoutingBucket;
+import org.libtorrent4j.alerts.Alert;
+import org.libtorrent4j.alerts.AlertType;
+import org.libtorrent4j.alerts.DhtStatsAlert;
 
 import java.util.ArrayList;
 

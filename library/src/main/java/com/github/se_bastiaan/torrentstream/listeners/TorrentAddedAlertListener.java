@@ -16,10 +16,10 @@
 
 package com.github.se_bastiaan.torrentstream.listeners;
 
-import com.frostwire.jlibtorrent.AlertListener;
-import com.frostwire.jlibtorrent.alerts.AddTorrentAlert;
-import com.frostwire.jlibtorrent.alerts.Alert;
-import com.frostwire.jlibtorrent.alerts.AlertType;
+import org.libtorrent4j.AlertListener;
+import org.libtorrent4j.alerts.AddTorrentAlert;
+import org.libtorrent4j.alerts.Alert;
+import org.libtorrent4j.alerts.AlertType;
 
 public abstract class TorrentAddedAlertListener implements AlertListener {
     @Override
